@@ -71,13 +71,18 @@
       </div>
 
       {# Konten paste #}
-      <div class="glass-card overflow-hidden">
+      <div class="overflow-hidden" style="border:2.5px solid #1a1a1a; border-radius:16px; box-shadow:4px 4px 0 #1a1a1a;">
         {% if paste.paste_type == 'code' %}
-          <div class="flex items-center justify-between px-4 py-2.5 border-b border-gray-200 bg-white/50">
-            <span class="text-xs text-gray-500 font-mono">{{ paste.language or 'plaintext' }}</span>
-            <span class="text-xs text-gray-400">{{ paste.content.split('\n')|length }} baris</span>
+          <div style="background:#282a36; border-bottom:2px solid #1a1a1a; padding:8px 14px; display:flex; align-items:center; justify-content:space-between;">
+            <div style="display:flex; gap:6px; align-items:center;">
+              <span style="width:12px;height:12px;border-radius:50%;background:#ff5f56;display:inline-block;"></span>
+              <span style="width:12px;height:12px;border-radius:50%;background:#ffbd2e;display:inline-block;"></span>
+              <span style="width:12px;height:12px;border-radius:50%;background:#27c93f;display:inline-block;"></span>
+            </div>
+            <span style="font-size:0.7rem;font-family:'JetBrains Mono',monospace;color:#6272a4;font-weight:600;letter-spacing:0.05em;">{{ paste.language or 'plaintext' }}</span>
+            <span style="font-size:0.7rem;font-family:'JetBrains Mono',monospace;color:#6272a4;">{{ paste.content.split('\n')|length }} baris</span>
           </div>
-          <pre class="overflow-x-auto"><code class="language-{{ paste.language or 'plaintext' }} hljs p-5 block text-sm leading-relaxed">{{ paste.content | e }}</code></pre>
+          <pre class="overflow-x-auto" style="margin:0;border-radius:0;"><code class="language-{{ paste.language or 'plaintext' }} hljs p-5 block text-sm leading-relaxed" style="border-radius:0;">{{ paste.content | e }}</code></pre>
         {% else %}
           <div class="p-6 prose prose-invert max-w-none">
             <pre class="whitespace-pre-wrap break-words text-gray-800 text-sm leading-relaxed font-sans">{{ paste.content | e }}</pre>
