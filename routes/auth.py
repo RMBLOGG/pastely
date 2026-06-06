@@ -38,7 +38,7 @@ def cek_username():
         return jsonify({"error": "Username hanya boleh huruf kecil, angka, dan underscore."}), 400
 
     db = get_db()
-    result = db.table("users").select("id, username").eq("username", username).execute()
+    result = db.table("pastely_users").select("id, username").eq("username", username).execute()
 
     if result.data:
         return jsonify({"exists": True, "message": f"Selamat datang kembali, {username}!"})
@@ -60,7 +60,7 @@ def login_api():
         return jsonify({"error": "PIN harus tepat 4 angka."}), 400
 
     db = get_db()
-    result = db.table("users").select("*").eq("username", username).execute()
+    result = db.table("pastely_users").select("*").eq("username", username).execute()
 
     if result.data:
         # User sudah ada — verifikasi PIN
@@ -77,7 +77,7 @@ def login_api():
         # User baru — daftar
         pin_hash = generate_password_hash(pin)
         try:
-            insert_result = db.table("users").insert({
+            insert_result = db.table("pastely_users").insert({
                 "username": username,
                 "pin_hash": pin_hash,
             }).execute()
@@ -102,7 +102,7 @@ def profile(username):
     db = get_db()
 
     # Ambil data user
-    user_result = db.table("users").select("id, username, created_at").eq("username", username.lower()).execute()
+    user_result = db.table("pastely_users").select("id, username, created_at").eq("username", username.lower()).execute()
     if not user_result.data:
         flash("User tidak ditemukan.", "error")
         return render_template("404.html"), 404

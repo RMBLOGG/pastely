@@ -189,7 +189,7 @@ def view_paste(slug):
     # Ambil info user pembuat (jika ada)
     creator = None
     if paste.get("user_id"):
-        user_result = db.table("users").select("username, created_at").eq("id", paste["user_id"]).execute()
+        user_result = db.table("pastely_users").select("username, created_at").eq("id", paste["user_id"]).execute()
         if user_result.data:
             creator = user_result.data[0]
 
