@@ -6,7 +6,7 @@
   <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12 text-center">
 
     <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold mb-6" style="background:#fff; border:2px solid #1a1a1a; box-shadow:3px 3px 0 #1a1a1a;">
-      ✨ Gratis & tanpa registrasi
+      <i class="fa-solid fa-star text-yellow-400"></i> Gratis & tanpa registrasi
     </div>
 
     <h1 class="text-5xl sm:text-6xl font-black leading-tight mb-4 text-gray-900">
@@ -16,16 +16,16 @@
 
     <p class="text-lg text-gray-600 mb-8 max-w-xl mx-auto font-semibold">
       Platform simpel untuk berbagi konten dengan siapa saja.
-      Cepat, aman, dan bisa diatur kedaluwarsanya. 🚀
+      Cepat, aman, dan bisa diatur kedaluwarsanya. <i class="fa-solid fa-rocket text-pink-400"></i>
     </p>
 
     <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mb-14">
       <a href="{{ url_for('paste.create') }}" class="btn-primary text-base px-6 py-3 w-full sm:w-auto justify-center" style="background:#ff6b9d; color:#fff;">
-        ✏️ Mulai Paste Sekarang
+        <i class="fa-solid fa-pen mr-1"></i> Mulai Paste Sekarang
       </a>
       {% if not session.user_id %}
       <a href="{{ url_for('auth.auth') }}" class="btn-ghost text-base px-6 py-3 w-full sm:w-auto justify-center">
-        🔑 Buat Akun Gratis
+        <i class="fa-solid fa-key mr-1"></i> Buat Akun Gratis
       </a>
       {% endif %}
     </div>
@@ -33,17 +33,17 @@
     {# Feature cards #}
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
       <div class="glass-card p-4 text-left" style="background:#fff9c4;">
-        <div class="text-2xl mb-2">💻</div>
+        <div class="text-2xl mb-2"><i class="fa-solid fa-code text-gray-700"></i></div>
         <p class="text-sm font-bold text-gray-900">Syntax Highlight</p>
         <p class="text-xs text-gray-500 font-semibold mt-1">30+ bahasa pemrograman</p>
       </div>
       <div class="glass-card p-4 text-left" style="background:#ffd6e7;">
-        <div class="text-2xl mb-2">🔒</div>
+        <div class="text-2xl mb-2"><i class="fa-solid fa-lock text-gray-700"></i></div>
         <p class="text-sm font-bold text-gray-900">Privat & Aman</p>
         <p class="text-xs text-gray-500 font-semibold mt-1">Lindungi dengan password</p>
       </div>
       <div class="glass-card p-4 text-left" style="background:#d4f8e8;">
-        <div class="text-2xl mb-2">⏱️</div>
+        <div class="text-2xl mb-2"><i class="fa-solid fa-clock text-gray-700"></i></div>
         <p class="text-sm font-bold text-gray-900">Auto Kedaluwarsa</p>
         <p class="text-xs text-gray-500 font-semibold mt-1">Dari 1 jam sampai 30 hari</p>
       </div>
@@ -56,7 +56,7 @@
 <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
   <div class="flex items-center justify-between mb-5">
     <div>
-      <h2 class="text-xl font-black text-gray-900">📋 Paste Terbaru</h2>
+      <h2 class="text-xl font-black text-gray-900"><i class="fa-solid fa-clipboard-list mr-1"></i> Paste Terbaru</h2>
       <p class="text-sm text-gray-500 font-semibold mt-0.5">Dibagikan secara publik</p>
     </div>
     <a href="{{ url_for('paste.search') }}" class="btn-ghost text-sm px-4 py-2">Lihat semua →</a>
@@ -67,11 +67,11 @@
     <a href="{{ url_for('paste.view_paste', slug=paste.slug) }}" class="paste-card group">
       <div class="flex items-start justify-between mb-3">
         <span class="type-badge type-{{ paste.paste_type }}">
-          {% if paste.paste_type == 'code' %}💻 {{ paste.language or 'Kode' }}
-          {% elif paste.paste_type == 'link' %}🔗 Link
-          {% else %}📝 Teks{% endif %}
+          {% if paste.paste_type == 'code' %}<i class="fa-solid fa-code mr-1"></i> {{ paste.language or 'Kode' }}
+          {% elif paste.paste_type == 'link' %}<i class="fa-solid fa-link mr-1"></i> Link
+          {% else %}<i class="fa-solid fa-file-lines mr-1"></i> Teks{% endif %}
         </span>
-        <span class="text-xs text-gray-400 font-bold flex items-center gap-1">👁 {{ paste.view_count }}</span>
+        <span class="text-xs text-gray-400 font-bold flex items-center gap-1"><i class="fa-solid fa-eye"></i> {{ paste.view_count }}</span>
       </div>
       <h3 class="font-bold text-gray-900 group-hover:text-pink-500 transition-colors line-clamp-1 mb-1">
         {{ paste.title or ('Tanpa Judul — ' + paste.slug) }}
@@ -84,11 +84,11 @@
 {% else %}
 <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 text-center py-12">
   <div class="glass-card max-w-md mx-auto p-12">
-    <div class="text-5xl mb-4">📭</div>
+    <div class="text-5xl mb-4"><i class="fa-solid fa-inbox text-gray-300"></i></div>
     <h3 class="text-lg font-black text-gray-900 mb-2">Belum ada paste</h3>
     <p class="text-sm text-gray-500 font-semibold mb-6">Jadilah yang pertama berbagi sesuatu!</p>
     <a href="{{ url_for('paste.create') }}" class="btn-primary text-sm px-5 py-2.5 inline-flex" style="background:#ff6b9d; color:#fff;">
-      ✏️ Buat Paste Pertama
+      <i class="fa-solid fa-pen mr-1"></i> Buat Paste Pertama
     </a>
   </div>
 </section>

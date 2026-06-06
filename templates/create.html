@@ -126,15 +126,15 @@
           <label class="form-label mb-3">Visibilitas</label>
           <div class="space-y-2">
             {% for val, icon, label, desc in [
-              ('public', '🌐', 'Publik', 'Semua orang bisa lihat'),
-              ('unlisted', '🔗', 'Unlisted', 'Hanya yang punya link'),
-              ('private', '🔒', 'Privat', 'Dilindungi password'),
+              ('public', '<i class="fa-solid fa-globe"></i>', 'Publik', 'Semua orang bisa lihat'),
+              ('unlisted', '<i class="fa-solid fa-link"></i>', 'Unlisted', 'Hanya yang punya link'),
+              ('private', '<i class="fa-solid fa-lock"></i>', 'Privat', 'Dilindungi password'),
             ] %}
             <label class="visibility-option {% if (edit and paste.visibility == val) or (not edit and val == 'public') %}visibility-selected{% endif %}">
               <input type="radio" name="visibility" value="{{ val }}" class="sr-only"
                 {% if (edit and paste.visibility == val) or (not edit and val == 'public') %}checked{% endif %}
               />
-              <span class="text-base">{{ icon }}</span>
+              <span class="text-base">{{ icon | safe }}</span>
               <div class="flex-1 min-w-0">
                 <span class="text-sm font-medium text-gray-800 block">{{ label }}</span>
                 <span class="text-xs text-gray-500">{{ desc }}</span>

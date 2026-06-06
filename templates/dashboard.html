@@ -79,10 +79,10 @@
               {% else %}● Privat{% endif %}
             </span>
             {% if paste.expires_at %}
-            <span class="text-xs text-orange-600">⏱ {{ paste.expires_at | relative_time }}</span>
+            <span class="text-xs text-orange-600"><i class="fa-solid fa-clock"></i> {{ paste.expires_at | relative_time }}</span>
             {% endif %}
             {% if paste.burn_after_read %}
-            <span class="text-xs text-orange-500">🔥 Bakar</span>
+            <span class="text-xs text-orange-500"><i class="fa-solid fa-fire"></i> Bakar</span>
             {% endif %}
           </div>
         </div>
