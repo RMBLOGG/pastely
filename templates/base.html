@@ -37,7 +37,7 @@
 <body class="min-h-screen flex flex-col">
 
   {# ── Navbar ── #}
-  <nav class="sticky top-0 z-50" style="background:#ffd95a; border-bottom:2.5px solid #1a1a1a;">
+  <nav class="sticky top-0 z-50" style="background:#7dd3fc; border-bottom:2.5px solid #1a1a1a;">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-14">
 
@@ -76,8 +76,8 @@
                 {{ session.username }}
               </button>
               <div class="absolute right-0 mt-2 w-44 py-1 rounded-xl hidden group-hover:block" style="background:#fff; border:2.5px solid #1a1a1a; box-shadow:4px 4px 0 #1a1a1a;">
-                <a href="{{ url_for('auth.profile', username=session.username) }}" class="block px-4 py-2 text-sm font-bold hover:bg-yellow-100 transition-colors">Profil Publik</a>
-                <a href="{{ url_for('dashboard.dashboard') }}" class="block px-4 py-2 text-sm font-bold hover:bg-yellow-100 transition-colors">Dashboard</a>
+                <a href="{{ url_for('auth.profile', username=session.username) }}" class="block px-4 py-2 text-sm font-bold hover:bg-sky-100 transition-colors">Profil Publik</a>
+                <a href="{{ url_for('dashboard.dashboard') }}" class="block px-4 py-2 text-sm font-bold hover:bg-sky-100 transition-colors">Dashboard</a>
                 <hr style="border-color:#1a1a1a; margin:4px 0;" />
                 <a href="{{ url_for('auth.logout') }}" class="block px-4 py-2 text-sm font-bold text-red-500 hover:bg-red-50 transition-colors">Keluar</a>
               </div>
@@ -97,7 +97,7 @@
     </div>
 
     {# Mobile menu #}
-    <div id="mobile-menu" class="md:hidden hidden px-4 py-3 space-y-1" style="border-top:2px solid #1a1a1a; background:#fff8e1;">
+    <div id="mobile-menu" class="md:hidden hidden px-4 py-3 space-y-1" style="border-top:2px solid #1a1a1a; background:#e0f2fe;">
       <a href="{{ url_for('paste.create') }}" class="mobile-nav-link"><i class="fa-solid fa-pen-to-square mr-1"></i> Buat Paste</a>
       <a href="{{ url_for('paste.search') }}" class="mobile-nav-link"><i class="fa-solid fa-magnifying-glass mr-1"></i> Cari Paste</a>
       {% if session.user_id %}
@@ -131,7 +131,7 @@
     {% block content %}{% endblock %}
   </main>
 
-  <footer style="border-top:2.5px solid #1a1a1a; background:#fff3cc;">
+  <footer style="border-top:2.5px solid #1a1a1a; background:#f0f9ff;">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
         <span class="font-black text-lg text-gray-900"><i class="fa-solid fa-file-lines mr-1"></i> Pastely</span>

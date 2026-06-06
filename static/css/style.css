@@ -19,7 +19,7 @@ body {
 /* ── Warna utama ── */
 :root {
   --cream:   #fef9ef;
-  --yellow:  #ffd95a;
+  --yellow:  #7dd3fc;
   --pink:    #ff6b9d;
   --black:   #1a1a1a;
   --border:  2.5px solid #1a1a1a;
@@ -265,7 +265,7 @@ body {
   letter-spacing: 0.04em;
   border: 2px solid var(--black);
 }
-.type-text  { background: #ffd95a; color: var(--black); }
+.type-text  { background: #7dd3fc; color: var(--black); }
 .type-code  { background: #a8f0c6; color: var(--black); }
 .type-link  { background: #ffb3d1; color: var(--black); }
 
@@ -346,7 +346,7 @@ nav {
 
 /* ── Footer override ── */
 footer {
-  background: #fff3cc;
+  background: #e0f2fe;
   border-top: var(--border) !important;
 }
 
