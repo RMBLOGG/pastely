@@ -179,13 +179,16 @@ def following_feed():
 
     pastes = []
     if following_ids:
-        result = db.table("snippets") \
-            .select("slug, title, paste_type, language, created_at, view_count, like_count, user_id, pastely_users(username)") \
+        result = db.table("public_snippets_with_user") \
+            .select("slug, title, paste_type, language, created_at, view_count, like_count, user_id, username") \
             .eq("visibility", "public") \
             .in_("user_id", following_ids) \
             .order("created_at", desc=True) \
             .limit(30) \
             .execute()
+        # Format biar konsisten sama template
+        for p in (result.data or []):
+            p["pastely_users"] = {"username": p.get("username") or "Unknown"}
         pastes = result.data or []
 
     return render_template("following.html", pastes=pastes, following_count=len(following_ids))
