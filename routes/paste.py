@@ -61,7 +61,7 @@ def index():
             .eq("visibility", "public")
             .is_("expires_at", "null")
             .order("created_at", desc=True)
-            .limit(10)
+            .limit(5)
             .execute()
         )
         # Juga ambil yang belum expired
@@ -71,13 +71,13 @@ def index():
             .eq("visibility", "public")
             .gt("expires_at", datetime.now(timezone.utc).isoformat())
             .order("created_at", desc=True)
-            .limit(10)
+            .limit(5)
             .execute()
         )
         pastes = result.data + result2.data
-        # Urutkan dan ambil 10 terbaru
+        # Urutkan dan ambil 5 terbaru
         pastes.sort(key=lambda x: x["created_at"], reverse=True)
-        pastes = pastes[:10]
+        pastes = pastes[:5]
     except Exception:
         pastes = []
 

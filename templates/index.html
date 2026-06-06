@@ -1,53 +1,114 @@
 {% extends "base.html" %}
 
 {% block content %}
+
 {# ── Hero ── #}
 <section class="relative overflow-hidden">
-  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12 text-center">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-10 text-center">
 
-    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold mb-6" style="background:#fff; border:2px solid #1a1a1a; box-shadow:3px 3px 0 #1a1a1a;">
-      <i class="fa-solid fa-star text-yellow-400"></i> Gratis & tanpa registrasi
+    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold mb-5 uppercase tracking-widest" style="background:#fff; border:2px solid #1a1a1a; box-shadow:2px 2px 0 #1a1a1a; color:#555;">
+      <i class="fa-solid fa-shield-halved text-green-500"></i> Aman · Gratis · Tanpa Registrasi
     </div>
 
-    <h1 class="text-5xl sm:text-6xl font-black leading-tight mb-4 text-gray-900">
-      Share <span style="color:#ff6b9d; background:#ffd95a; padding:0 8px; border-radius:8px; border:2.5px solid #1a1a1a;">teks</span> &
-      <span style="color:#ff6b9d;">kode</span><br />dengan mudah!
+    <h1 class="text-4xl sm:text-6xl font-black leading-tight mb-4 text-gray-900">
+      Bagikan <span style="color:#ff6b9d; background:#ffd95a; padding:0 10px; border-radius:8px; border:2.5px solid #1a1a1a;">teks</span> &
+      <span style="color:#ff6b9d;">kode</span><br />dalam hitungan detik.
     </h1>
 
-    <p class="text-lg text-gray-600 mb-8 max-w-xl mx-auto font-semibold">
-      Platform simpel untuk berbagi konten dengan siapa saja.
-      Cepat, aman, dan bisa diatur kedaluwarsanya. <i class="fa-solid fa-rocket text-pink-400"></i>
+    <p class="text-base text-gray-500 mb-8 max-w-lg mx-auto leading-relaxed">
+      Platform minimalis untuk berbagi konten dengan siapa saja —
+      tanpa akun, tanpa ribet. Dukung 30+ bahasa pemrograman dengan syntax highlighting otomatis.
     </p>
 
-    <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mb-14">
-      <a href="{{ url_for('paste.create') }}" class="btn-primary text-base px-6 py-3 w-full sm:w-auto justify-center" style="background:#ff6b9d; color:#fff;">
-        <i class="fa-solid fa-pen mr-1"></i> Mulai Paste Sekarang
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mb-10">
+      <a href="{{ url_for('paste.create') }}" class="btn-primary text-base px-7 py-3 w-full sm:w-auto justify-center" style="background:#ff6b9d; color:#fff;">
+        <i class="fa-solid fa-pen mr-2"></i> Mulai Paste Sekarang
       </a>
       {% if not session.user_id %}
-      <a href="{{ url_for('auth.auth') }}" class="btn-ghost text-base px-6 py-3 w-full sm:w-auto justify-center">
-        <i class="fa-solid fa-key mr-1"></i> Buat Akun Gratis
+      <a href="{{ url_for('auth.auth') }}" class="btn-ghost text-base px-7 py-3 w-full sm:w-auto justify-center">
+        <i class="fa-solid fa-user-plus mr-2"></i> Buat Akun Gratis
       </a>
       {% endif %}
     </div>
 
-    {# Feature cards #}
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
-      <div class="glass-card p-4 text-left" style="background:#fff9c4;">
-        <div class="text-2xl mb-2"><i class="fa-solid fa-code text-gray-700"></i></div>
-        <p class="text-sm font-bold text-gray-900">Syntax Highlight</p>
-        <p class="text-xs text-gray-500 font-semibold mt-1">30+ bahasa pemrograman</p>
+    {# Trust stats #}
+    <div class="flex items-center justify-center gap-6 sm:gap-10 text-center mb-12 flex-wrap">
+      <div>
+        <p class="text-2xl font-black text-gray-900">30+</p>
+        <p class="text-xs text-gray-400 font-semibold">Bahasa Pemrograman</p>
       </div>
-      <div class="glass-card p-4 text-left" style="background:#ffd6e7;">
-        <div class="text-2xl mb-2"><i class="fa-solid fa-lock text-gray-700"></i></div>
-        <p class="text-sm font-bold text-gray-900">Privat & Aman</p>
-        <p class="text-xs text-gray-500 font-semibold mt-1">Lindungi dengan password</p>
+      <div class="w-px h-8 bg-gray-200 hidden sm:block"></div>
+      <div>
+        <p class="text-2xl font-black text-gray-900">100%</p>
+        <p class="text-xs text-gray-400 font-semibold">Gratis Selamanya</p>
       </div>
-      <div class="glass-card p-4 text-left" style="background:#d4f8e8;">
-        <div class="text-2xl mb-2"><i class="fa-solid fa-clock text-gray-700"></i></div>
-        <p class="text-sm font-bold text-gray-900">Auto Kedaluwarsa</p>
-        <p class="text-xs text-gray-500 font-semibold mt-1">Dari 1 jam sampai 30 hari</p>
+      <div class="w-px h-8 bg-gray-200 hidden sm:block"></div>
+      <div>
+        <p class="text-2xl font-black text-gray-900">&lt;1s</p>
+        <p class="text-xs text-gray-400 font-semibold">Waktu Buat Paste</p>
       </div>
     </div>
+
+  </div>
+</section>
+
+{# ── Feature Section ── #}
+<section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+    <div class="glass-card p-5 text-left" style="background:#fff9c4;">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style="background:#ffd95a; border:2px solid #1a1a1a;">
+        <i class="fa-solid fa-code text-gray-800"></i>
+      </div>
+      <p class="text-sm font-black text-gray-900 mb-1">Syntax Highlighting</p>
+      <p class="text-xs text-gray-500 leading-relaxed">Otomatis mendeteksi dan mewarnai 30+ bahasa pemrograman populer.</p>
+    </div>
+
+    <div class="glass-card p-5 text-left" style="background:#ffd6e7;">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style="background:#ff6b9d; border:2px solid #1a1a1a;">
+        <i class="fa-solid fa-lock text-white"></i>
+      </div>
+      <p class="text-sm font-black text-gray-900 mb-1">Privat & Terenkripsi</p>
+      <p class="text-xs text-gray-500 leading-relaxed">Lindungi paste dengan password. Hanya yang tahu link bisa mengaksesnya.</p>
+    </div>
+
+    <div class="glass-card p-5 text-left" style="background:#d4f8e8;">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style="background:#34d399; border:2px solid #1a1a1a;">
+        <i class="fa-solid fa-clock text-white"></i>
+      </div>
+      <p class="text-sm font-black text-gray-900 mb-1">Auto Kedaluwarsa</p>
+      <p class="text-xs text-gray-500 leading-relaxed">Atur waktu kedaluwarsa dari 1 jam hingga 30 hari. Otomatis terhapus.</p>
+    </div>
+
+  </div>
+
+  {# Second row features #}
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
+
+    <div class="glass-card p-5 text-left">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style="background:#e0e7ff; border:2px solid #1a1a1a;">
+        <i class="fa-solid fa-link text-indigo-600"></i>
+      </div>
+      <p class="text-sm font-black text-gray-900 mb-1">Share Link</p>
+      <p class="text-xs text-gray-500 leading-relaxed">Bagikan kumpulan link dalam satu paste. Rapi dan mudah dibagikan.</p>
+    </div>
+
+    <div class="glass-card p-5 text-left">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style="background:#fee2e2; border:2px solid #1a1a1a;">
+        <i class="fa-solid fa-fire text-red-500"></i>
+      </div>
+      <p class="text-sm font-black text-gray-900 mb-1">Burn After Read</p>
+      <p class="text-xs text-gray-500 leading-relaxed">Paste otomatis terhapus setelah dibuka satu kali. Untuk privasi maksimal.</p>
+    </div>
+
+    <div class="glass-card p-5 text-left">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style="background:#fef9c3; border:2px solid #1a1a1a;">
+        <i class="fa-solid fa-user text-yellow-600"></i>
+      </div>
+      <p class="text-sm font-black text-gray-900 mb-1">Profil Publik</p>
+      <p class="text-xs text-gray-500 leading-relaxed">Buat akun untuk kelola semua paste kamu di satu tempat.</p>
+    </div>
+
   </div>
 </section>
 
@@ -93,4 +154,64 @@
   </div>
 </section>
 {% endif %}
+
+{# ── Kebijakan & Ketentuan ── #}
+<section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+  <div class="glass-card p-8" style="background:#fff;">
+
+    <div class="flex items-center gap-3 mb-6">
+      <div class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#ffd95a; border:2px solid #1a1a1a;">
+        <i class="fa-solid fa-scale-balanced text-gray-800 text-sm"></i>
+      </div>
+      <h2 class="text-lg font-black text-gray-900">Kebijakan & Ketentuan Penggunaan</h2>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 text-sm text-gray-600 leading-relaxed">
+
+      <div>
+        <p class="font-black text-gray-900 mb-2 flex items-center gap-2">
+          <i class="fa-solid fa-circle-check text-green-500"></i> Yang Boleh
+        </p>
+        <ul class="space-y-1.5">
+          <li class="flex items-start gap-2"><i class="fa-solid fa-check text-green-400 mt-0.5 text-xs"></i> Berbagi kode, teks, dan link untuk keperluan pribadi maupun profesional</li>
+          <li class="flex items-start gap-2"><i class="fa-solid fa-check text-green-400 mt-0.5 text-xs"></i> Membuat paste privat yang dilindungi password</li>
+          <li class="flex items-start gap-2"><i class="fa-solid fa-check text-green-400 mt-0.5 text-xs"></i> Menggunakan fitur kedaluwarsa untuk konten sementara</li>
+          <li class="flex items-start gap-2"><i class="fa-solid fa-check text-green-400 mt-0.5 text-xs"></i> Berbagi snippet kode untuk keperluan belajar & kolaborasi</li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="font-black text-gray-900 mb-2 flex items-center gap-2">
+          <i class="fa-solid fa-circle-xmark text-red-400"></i> Yang Tidak Boleh
+        </p>
+        <ul class="space-y-1.5">
+          <li class="flex items-start gap-2"><i class="fa-solid fa-xmark text-red-400 mt-0.5 text-xs"></i> Menyebarkan konten berbahaya, malware, atau kode berbahaya</li>
+          <li class="flex items-start gap-2"><i class="fa-solid fa-xmark text-red-400 mt-0.5 text-xs"></i> Membagikan data pribadi orang lain tanpa izin</li>
+          <li class="flex items-start gap-2"><i class="fa-solid fa-xmark text-red-400 mt-0.5 text-xs"></i> Konten ilegal, SARA, atau melanggar hak cipta</li>
+          <li class="flex items-start gap-2"><i class="fa-solid fa-xmark text-red-400 mt-0.5 text-xs"></i> Spam atau penyalahgunaan layanan secara berlebihan</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <hr class="my-6 border-gray-200">
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm text-gray-500 leading-relaxed">
+      <div>
+        <p class="font-bold text-gray-700 mb-1 flex items-center gap-2"><i class="fa-solid fa-database text-blue-400"></i> Data & Privasi</p>
+        <p>Pastely tidak mengumpulkan data pribadi selain username dan PIN yang lo buat sendiri. Paste publik dapat dilihat siapa saja. Paste privat hanya bisa diakses dengan password yang lo tentukan.</p>
+      </div>
+      <div>
+        <p class="font-bold text-gray-700 mb-1 flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation text-yellow-500"></i> Disclaimer</p>
+        <p>Pastely berhak menghapus konten yang melanggar ketentuan tanpa pemberitahuan. Kami tidak bertanggung jawab atas konten yang dibagikan oleh pengguna. Gunakan layanan ini dengan bijak.</p>
+      </div>
+    </div>
+
+    <p class="text-xs text-gray-400 mt-6 text-center">
+      Dengan menggunakan Pastely, kamu menyetujui ketentuan di atas. Terakhir diperbarui: Juni 2025.
+    </p>
+
+  </div>
+</section>
+
 {% endblock %}
