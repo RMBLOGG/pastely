@@ -1,83 +1,78 @@
 {% extends "base.html" %}
 
-{% block title %}Mengalihkan ke {{ url }} — Pastely{% endblock %}
+{% block title %}{{ paste.title or 'Link' }} — Pastely{% endblock %}
 
 {% block content %}
-<div class="min-h-[70vh] flex items-center justify-center px-4">
-  <div class="glass-card max-w-lg w-full p-10 text-center">
+<div class="max-w-2xl mx-auto px-4 py-10">
 
-    {# Ikon link #}
-    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-cyan-500/20 border border-indigo-500/20 flex items-center justify-center mx-auto mb-6">
-      <svg class="w-8 h-8 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+  {# Judul #}
+  {% if paste.title %}
+  <h1 class="text-2xl font-bold text-gray-900 mb-6">{{ paste.title }}</h1>
+  {% endif %}
+
+  {# Konten — render sebagai teks mengalir, URL jadi link biru #}
+  <div class="text-base text-gray-800 leading-relaxed space-y-1" id="content-area"></div>
+
+  {# Tombol salin semua — kecil, di bawah #}
+  <div class="mt-8 flex items-center gap-3">
+    <button onclick="copyAll()" class="text-xs text-gray-400 hover:text-gray-500 transition-colors flex items-center gap-1.5">
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
       </svg>
-    </div>
-
-    <h1 class="text-xl font-semibold text-gray-100 mb-2">
-      {{ paste.title or 'Mengalihkan...' }}
-    </h1>
-
-    <p class="text-sm text-gray-500 mb-6">Kamu akan diarahkan ke:</p>
-
-    {# URL tujuan #}
-    <div class="px-4 py-3 rounded-xl bg-gray-900/80 border border-white/5 mb-8 overflow-hidden">
-      <p class="text-sm text-indigo-400 font-mono break-all">{{ url }}</p>
-    </div>
-
-    {# Countdown #}
-    <div class="mb-6">
-      <div class="text-4xl font-bold gradient-text mb-2" id="countdown">3</div>
-      <p class="text-sm text-gray-500" id="countdown-text">Mengalihkan dalam <span id="countdown-num">3</span> detik...</p>
-    </div>
-
-    {# Progress bar #}
-    <div class="w-full h-1 bg-gray-800 rounded-full overflow-hidden mb-6">
-      <div id="progress-bar" class="h-full bg-gradient-to-r from-indigo-500 to-cyan-400 rounded-full transition-all duration-1000 ease-linear" style="width: 0%"></div>
-    </div>
-
-    {# Tombol aksi #}
-    <div class="flex flex-col sm:flex-row gap-3 justify-center">
-      <a href="{{ url }}" class="btn-primary text-sm px-5 py-2.5" id="go-now-btn">
-        Lanjutkan Sekarang
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-        </svg>
-      </a>
-      <a href="{{ url_for('paste.index') }}" class="btn-ghost text-sm px-5 py-2.5">
-        Batalkan
-      </a>
-    </div>
-
-    {# Peringatan keamanan #}
-    <p class="text-xs text-gray-700 mt-6">
-      Pastely tidak bertanggung jawab atas konten di situs tujuan.
-      Pastikan kamu mengenali alamat tersebut sebelum melanjutkan.
-    </p>
+      Salin semua
+    </button>
+    <span class="text-gray-800">·</span>
+    <span class="text-xs text-gray-500">{{ paste.view_count }} dilihat</span>
+    <span class="text-gray-800">·</span>
+    <span class="text-xs text-gray-500">{{ paste.created_at | relative_time }}</span>
   </div>
+
+</div>
+
+<div id="copy-toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 px-4 py-2.5 rounded-xl bg-yellow-50 border border-gray-300 text-sm text-gray-800 shadow-xl opacity-0 pointer-events-none transition-all duration-300 z-50">
+  Disalin!
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-const targetUrl = {{ url | tojson }};
-let count = 3;
-const countdownEl = document.getElementById('countdown');
-const countdownNumEl = document.getElementById('countdown-num');
-const progressBar = document.getElementById('progress-bar');
+const rawContent = {{ url | tojson }};
+const container = document.getElementById('content-area');
 
-// Mulai progress bar
-setTimeout(() => { progressBar.style.width = '33%'; }, 50);
+function isUrl(str) {
+  return /^(https?:\/\/|www\.)[^\s]+$/.test(str) || /^[a-zA-Z0-9-]+\.[a-zA-Z]{2,}\/[^\s]*$/.test(str);
+}
 
-const timer = setInterval(() => {
-  count--;
-  countdownEl.textContent = count;
-  countdownNumEl.textContent = count;
-  progressBar.style.width = ((3 - count) / 3 * 100) + '%';
+// Render tiap baris
+const lines = rawContent.split('\n');
+lines.forEach(line => {
+  const trimmed = line.trim();
+  const p = document.createElement('p');
 
-  if (count <= 0) {
-    clearInterval(timer);
-    window.location.href = targetUrl;
+  if (trimmed === '') {
+    // Baris kosong = spasi antar paragraf
+    p.className = 'h-3';
+  } else if (isUrl(trimmed)) {
+    const href = /^https?:\/\//.test(trimmed) ? trimmed : 'https://' + trimmed;
+    p.innerHTML = `<a href="${href}" target="_blank" rel="noopener" class="text-yellow-600 hover:text-cyan-300 underline underline-offset-2 break-all transition-colors">${trimmed}</a>`;
+  } else {
+    p.className = 'text-gray-800 break-words';
+    p.textContent = trimmed;
   }
-}, 1000);
+
+  container.appendChild(p);
+});
+
+function copyAll() {
+  navigator.clipboard.writeText(rawContent).then(() => {
+    const toast = document.getElementById('copy-toast');
+    toast.classList.remove('opacity-0', 'pointer-events-none');
+    toast.classList.add('opacity-100');
+    setTimeout(() => {
+      toast.classList.add('opacity-0', 'pointer-events-none');
+      toast.classList.remove('opacity-100');
+    }, 2000);
+  });
+}
 </script>
 {% endblock %}

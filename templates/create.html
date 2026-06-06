@@ -7,7 +7,7 @@
 
   {# Header #}
   <div class="mb-8">
-    <h1 class="text-2xl font-bold text-gray-100">
+    <h1 class="text-2xl font-bold text-gray-900">
       {% if edit %}Edit Paste
       {% elif fork %}Fork Paste
       {% else %}Buat Paste Baru
@@ -57,7 +57,7 @@
 
         {# Judul #}
         <div>
-          <label class="form-label">Judul <span class="text-gray-600">(opsional)</span></label>
+          <label class="form-label">Judul <span class="text-gray-400">(opsional)</span></label>
           <input
             type="text"
             name="title"
@@ -92,9 +92,9 @@
         {# Area konten #}
         <div>
           <label class="form-label">Konten <span class="text-red-400">*</span></label>
-          <div id="content-hint-text" class="text-xs text-gray-600 mb-2 {% if fork and fork.paste_type != 'text' %}hidden{% endif %}">Tulis teks yang ingin kamu bagikan</div>
-          <div id="content-hint-code" class="text-xs text-gray-600 mb-2 {% if not (fork and fork.paste_type == 'code') %}hidden{% endif %}">Tempel kode kamu di sini</div>
-          <div id="content-hint-link" class="text-xs text-gray-600 mb-2 {% if not (fork and fork.paste_type == 'link') %}hidden{% endif %}">Masukkan URL lengkap (dimulai dengan https://)</div>
+          <div id="content-hint-text" class="text-xs text-gray-400 mb-2 {% if fork and fork.paste_type != 'text' %}hidden{% endif %}">Tulis teks yang ingin kamu bagikan</div>
+          <div id="content-hint-code" class="text-xs text-gray-400 mb-2 {% if not (fork and fork.paste_type == 'code') %}hidden{% endif %}">Tempel kode kamu di sini</div>
+          <div id="content-hint-link" class="text-xs text-gray-400 mb-2 {% if not (fork and fork.paste_type == 'link') %}hidden{% endif %}">Masukkan URL lengkap (dimulai dengan https://)</div>
 
           {% if edit and paste.paste_type == 'code' %}
           <textarea
@@ -136,7 +136,7 @@
               />
               <span class="text-base">{{ icon }}</span>
               <div class="flex-1 min-w-0">
-                <span class="text-sm font-medium text-gray-200 block">{{ label }}</span>
+                <span class="text-sm font-medium text-gray-800 block">{{ label }}</span>
                 <span class="text-xs text-gray-500">{{ desc }}</span>
               </div>
             </label>
@@ -175,12 +175,12 @@
           <label class="flex items-center gap-3 cursor-pointer group">
             <div class="relative">
               <input type="checkbox" name="burn_after_read" id="burn-toggle" class="sr-only peer" />
-              <div class="w-10 h-5 rounded-full bg-gray-800 peer-checked:bg-indigo-500 transition-colors border border-white/10 peer-checked:border-indigo-500/50"></div>
+              <div class="w-10 h-5 rounded-full bg-yellow-50 peer-checked:bg-indigo-500 transition-colors border border-gray-300 peer-checked:border-indigo-500/50"></div>
               <div class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-gray-400 peer-checked:bg-white peer-checked:translate-x-5 transition-all"></div>
             </div>
             <div>
-              <span class="text-sm text-gray-300 block">Bakar setelah dibaca</span>
-              <span class="text-xs text-gray-600">Otomatis terhapus setelah dibuka 1x</span>
+              <span class="text-sm text-gray-500 block">Bakar setelah dibaca</span>
+              <span class="text-xs text-gray-400">Otomatis terhapus setelah dibuka 1x</span>
             </div>
           </label>
         </div>
@@ -202,8 +202,8 @@
         </button>
 
         {% if not session.user_id %}
-        <p class="text-xs text-gray-600 text-center">
-          <a href="{{ url_for('auth.auth') }}" class="text-indigo-400 hover:underline">Login</a> untuk bisa edit & hapus paste nanti
+        <p class="text-xs text-gray-400 text-center">
+          <a href="{{ url_for('auth.auth') }}" class="text-pink-500 hover:underline">Login</a> untuk bisa edit & hapus paste nanti
         </p>
         {% endif %}
       </div>

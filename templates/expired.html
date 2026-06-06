@@ -12,18 +12,18 @@
       </svg>
     </div>
 
-    <h1 class="text-2xl font-bold text-gray-100 mb-3">Paste Sudah Kedaluwarsa</h1>
+    <h1 class="text-2xl font-bold text-gray-900 mb-3">Paste Sudah Kedaluwarsa</h1>
     <p class="text-gray-500 text-sm mb-2">
       Paste ini sudah tidak tersedia karena telah melewati waktu kedaluwarsanya.
     </p>
     {% if paste.title %}
-    <p class="text-gray-600 text-sm mb-6">"{{ paste.title }}"</p>
+    <p class="text-gray-400 text-sm mb-6">"{{ paste.title }}"</p>
     {% endif %}
 
     {% if paste.expires_at %}
-    <div class="px-4 py-3 rounded-xl bg-gray-900/60 border border-white/5 mb-8">
-      <p class="text-xs text-gray-600">Kedaluwarsa pada</p>
-      <p class="text-sm text-gray-400 mt-0.5">{{ paste.expires_at | format_wib }}</p>
+    <div class="px-4 py-3 rounded-xl bg-white/60 border border-gray-200 mb-8">
+      <p class="text-xs text-gray-400">Kedaluwarsa pada</p>
+      <p class="text-sm text-gray-500 mt-0.5">{{ paste.expires_at | format_wib }}</p>
     </div>
     {% endif %}
 
