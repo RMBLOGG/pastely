@@ -44,7 +44,7 @@ def is_expired(paste):
         expires_at = datetime.fromisoformat(expires_at.replace("Z", "+00:00"))
     return datetime.now(timezone.utc) > expires_at
 
-def validate_url(url):
+def validate_url(url): return bool(url and url.strip())
     """Validasi apakah string adalah URL yang valid."""
     pattern = re.compile(
         r'^(https?://)'
