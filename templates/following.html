@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Feed Following — Pastely{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-black text-gray-900">
+        <i class="fa-solid fa-rss text-pink-400 mr-2"></i> Feed Following
+      </h1>
+      <p class="text-sm text-gray-500 mt-1">
+        Paste terbaru dari {{ following_count }} orang yang kamu ikuti
+      </p>
+    </div>
+    <a href="{{ url_for('paste.search') }}" class="btn-ghost text-sm px-4 py-2">
+      <i class="fa-solid fa-magnifying-glass mr-1"></i> Cari User
+    </a>
+  </div>
+
+  {% if pastes %}
+  <div class="space-y-4">
+    {% for paste in pastes %}
+    <a href="{{ url_for('paste.view_paste', slug=paste.slug) }}" class="glass-card p-5 flex items-start gap-4 hover:border-pink-300 transition-all block">
+      <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-400 to-cyan-400 flex items-center justify-center text-sm font-bold text-white flex-shrink-0">
+        {{ paste.users.username[0].upper() if paste.users else '?' }}
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 mb-1 flex-wrap">
+          <span class="text-sm font-bold text-gray-800">@{{ paste.users.username if paste.users else 'Unknown' }}</span>
+          <span class="text-xs text-gray-400">{{ paste.created_at | relative_time }}</span>
+          <span class="type-badge type-{{ paste.paste_type }} text-xs ml-auto">
+            {% if paste.paste_type == 'code' %}<i class="fa-solid fa-code mr-1"></i>{{ paste.language or 'Kode' }}
+            {% elif paste.paste_type == 'link' %}<i class="fa-solid fa-link mr-1"></i>Link
+            {% else %}<i class="fa-solid fa-file-lines mr-1"></i>Teks{% endif %}
+          </span>
+        </div>
+        <h3 class="font-bold text-gray-900 truncate">{{ paste.title or 'Tanpa Judul — ' + paste.slug }}</h3>
+        <div class="flex items-center gap-3 mt-2">
+          <span class="text-xs text-gray-400"><i class="fa-solid fa-eye mr-1"></i>{{ paste.view_count }}</span>
+          <span class="text-xs text-gray-400"><i class="fa-solid fa-heart mr-1"></i>{{ paste.like_count or 0 }}</span>
+        </div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <div class="glass-card p-12 text-center">
+    <div class="text-5xl mb-4"><i class="fa-solid fa-satellite-dish text-gray-300"></i></div>
+    <h3 class="text-lg font-black text-gray-900 mb-2">Feed masih kosong</h3>
+    <p class="text-sm text-gray-500 mb-6">
+      {% if following_count == 0 %}
+        Kamu belum mengikuti siapa pun. Cari user dan ikuti mereka!
+      {% else %}
+        Orang yang kamu ikuti belum membuat paste publik.
+      {% endif %}
+    </p>
+    <a href="{{ url_for('paste.search') }}" class="btn-primary text-sm px-5 py-2.5 inline-flex" style="background:#ff6b9d;color:#fff;">
+      <i class="fa-solid fa-magnifying-glass mr-1"></i> Cari User
+    </a>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

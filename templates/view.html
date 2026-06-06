@@ -66,6 +66,12 @@
               Fork
             </a>
             {% endif %}
+            {% if session.user_id and paste.visibility == 'public' %}
+            <button onclick="toggleLike()" id="like-btn" class="btn-ghost text-sm px-3 py-2 {% if is_liked %}text-pink-500{% endif %}" title="Like paste ini">
+              <i class="fa-{% if is_liked %}solid{% else %}regular{% endif %} fa-heart mr-1" id="like-icon"></i>
+              <span id="like-count">{{ paste.like_count or 0 }}</span>
+            </button>
+            {% endif %}
           </div>
         </div>
       </div>
@@ -90,6 +96,59 @@
         {% endif %}
       </div>
     </div>
+
+    {# ── Komentar ── #}
+    {% if paste.visibility == 'public' and not burned %}
+    <div class="glass-card p-5 mt-4">
+      <h3 class="text-sm font-black text-gray-900 mb-4">
+        <i class="fa-solid fa-comments mr-1 text-pink-400"></i> Komentar
+        <span class="text-gray-400 font-normal text-xs ml-1" id="comment-count">({{ comments|length }})</span>
+      </h3>
+
+      {% if session.user_id %}
+      <div class="flex gap-3 mb-5">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-indigo-400 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
+          {{ session.username[0].upper() }}
+        </div>
+        <div class="flex-1">
+          <textarea id="comment-input" class="form-textarea text-sm" rows="2" placeholder="Tulis komentar..." maxlength="1000"></textarea>
+          <button onclick="submitComment()" class="btn-primary text-xs px-4 py-1.5 mt-2" style="background:#ff6b9d;color:#fff;">
+            <i class="fa-solid fa-paper-plane mr-1"></i> Kirim
+          </button>
+        </div>
+      </div>
+      {% else %}
+      <p class="text-xs text-gray-400 mb-4">
+        <a href="{{ url_for('auth.auth') }}" class="text-pink-500 hover:underline">Login</a> untuk berkomentar.
+      </p>
+      {% endif %}
+
+      <div id="comments-list" class="space-y-3">
+        {% for c in comments %}
+        <div class="flex gap-3" id="comment-{{ c.id }}">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-cyan-400 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
+            {{ c.users.username[0].upper() if c.users else '?' }}
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-1">
+              <a href="{{ url_for('auth.profile', username=c.users.username) }}" class="text-xs font-bold text-gray-800 hover:text-pink-500">@{{ c.users.username if c.users else 'Unknown' }}</a>
+              <span class="text-xs text-gray-400">{{ c.created_at | relative_time }}</span>
+              {% if session.user_id == c.user_id %}
+              <button onclick="deleteComment('{{ c.id }}')" class="text-xs text-red-400 hover:text-red-600 ml-auto">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+              {% endif %}
+            </div>
+            <p class="text-sm text-gray-700 leading-relaxed">{{ c.content }}</p>
+          </div>
+        </div>
+        {% endfor %}
+        {% if not comments %}
+        <p class="text-xs text-gray-400 text-center py-4">Belum ada komentar. Jadilah yang pertama!</p>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
 
     {# ── Sidebar (kanan) ── #}
     <div class="w-full lg:w-72 flex-shrink-0 space-y-4">
@@ -172,15 +231,24 @@
       {% if creator %}
       <div class="glass-card p-5">
         <h3 class="text-sm font-semibold text-gray-500 mb-3">Dibuat oleh</h3>
-        <a href="{{ url_for('auth.profile', username=creator.username) }}" class="flex items-center gap-3 group">
+        <a href="{{ url_for('auth.profile', username=creator.username) }}" class="flex items-center gap-3 group mb-3">
           <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-400 flex items-center justify-center text-sm font-bold flex-shrink-0">
             {{ creator.username[0].upper() }}
           </div>
           <div>
-            <p class="text-sm font-medium text-gray-800 group-hover:text-white transition-colors">@{{ creator.username }}</p>
+            <p class="text-sm font-medium text-gray-800 group-hover:text-pink-500 transition-colors">@{{ creator.username }}</p>
             <p class="text-xs text-gray-400">Bergabung {{ creator.created_at | relative_time }}</p>
           </div>
         </a>
+        {% if session.user_id and session.user_id != paste.user_id %}
+        <button onclick="toggleFollow('{{ creator.username }}')" id="follow-btn"
+          class="w-full text-sm py-2 rounded-xl font-bold border-2 border-gray-900 transition-all
+          {% if is_following %}bg-gray-100 text-gray-700{% else %}bg-pink-500 text-white{% endif %}"
+          style="box-shadow:2px 2px 0 #1a1a1a;">
+          <i class="fa-solid {% if is_following %}fa-user-check{% else %}fa-user-plus{% endif %} mr-1" id="follow-icon"></i>
+          <span id="follow-label">{% if is_following %}Mengikuti{% else %}Ikuti{% endif %}</span>
+        </button>
+        {% endif %}
       </div>
       {% else %}
       <div class="glass-card p-5">
@@ -227,6 +295,107 @@
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el));
 });
+
+// ── Like ───────────────────────────────────────────────────────────
+async function toggleLike() {
+  const btn = document.getElementById('like-btn');
+  if (!btn) return;
+  btn.disabled = true;
+  try {
+    const res = await fetch('/api/like/{{ paste.slug }}', { method: 'POST' });
+    const data = await res.json();
+    if (res.ok) {
+      document.getElementById('like-count').textContent = data.like_count;
+      const icon = document.getElementById('like-icon');
+      icon.className = data.liked ? 'fa-solid fa-heart mr-1' : 'fa-regular fa-heart mr-1';
+      btn.classList.toggle('text-pink-500', data.liked);
+    } else {
+      alert(data.error);
+    }
+  } catch(e) { console.error(e); }
+  btn.disabled = false;
+}
+
+// ── Komentar ───────────────────────────────────────────────────────
+async function submitComment() {
+  const input = document.getElementById('comment-input');
+  const content = input.value.trim();
+  if (!content) return;
+
+  const res = await fetch('/api/comment/{{ paste.slug }}', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ content })
+  });
+  const data = await res.json();
+  if (!res.ok) { alert(data.error); return; }
+
+  // Tambah komentar baru ke DOM
+  const list = document.getElementById('comments-list');
+  const empty = list.querySelector('p');
+  if (empty) empty.remove();
+
+  const div = document.createElement('div');
+  div.className = 'flex gap-3';
+  div.id = 'comment-' + data.id;
+  div.innerHTML = `
+    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-indigo-400 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
+      ${data.username[0].toUpperCase()}
+    </div>
+    <div class="flex-1">
+      <div class="flex items-center gap-2 mb-1">
+        <span class="text-xs font-bold text-gray-800">@${data.username}</span>
+        <span class="text-xs text-gray-400">baru saja</span>
+        <button onclick="deleteComment('${data.id}')" class="text-xs text-red-400 hover:text-red-600 ml-auto">
+          <i class="fa-solid fa-trash-can"></i>
+        </button>
+      </div>
+      <p class="text-sm text-gray-700 leading-relaxed">${data.content}</p>
+    </div>`;
+  list.prepend(div);
+  input.value = '';
+
+  // Update counter
+  const counter = document.getElementById('comment-count');
+  const n = parseInt(counter.textContent.replace(/[^0-9]/g, '')) + 1;
+  counter.textContent = '(' + n + ')';
+}
+
+async function deleteComment(id) {
+  if (!confirm('Hapus komentar ini?')) return;
+  const res = await fetch('/api/comment/' + id, { method: 'DELETE' });
+  if (res.ok) {
+    document.getElementById('comment-' + id)?.remove();
+    const counter = document.getElementById('comment-count');
+    const n = Math.max(0, parseInt(counter.textContent.replace(/[^0-9]/g, '')) - 1);
+    counter.textContent = '(' + n + ')';
+  }
+}
+
+// ── Follow ─────────────────────────────────────────────────────────
+async function toggleFollow(username) {
+  const btn = document.getElementById('follow-btn');
+  if (!btn) return;
+  btn.disabled = true;
+  try {
+    const res = await fetch('/api/follow/' + username, { method: 'POST' });
+    const data = await res.json();
+    if (res.ok) {
+      const icon = document.getElementById('follow-icon');
+      const label = document.getElementById('follow-label');
+      if (data.following) {
+        btn.className = btn.className.replace('bg-pink-500 text-white', 'bg-gray-100 text-gray-700');
+        icon.className = 'fa-solid fa-user-check mr-1';
+        label.textContent = 'Mengikuti';
+      } else {
+        btn.className = btn.className.replace('bg-gray-100 text-gray-700', 'bg-pink-500 text-white');
+        icon.className = 'fa-solid fa-user-plus mr-1';
+        label.textContent = 'Ikuti';
+      }
+    } else { alert(data.error); }
+  } catch(e) { console.error(e); }
+  btn.disabled = false;
+}
 
 // Salin konten paste
 function copyContent() {

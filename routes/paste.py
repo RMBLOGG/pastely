@@ -208,7 +208,45 @@ def view_paste(slug):
     if burn:
         db.table("snippets").delete().eq("slug", slug).execute()
 
-    return render_template("view.html", paste=paste, creator=creator, burned=burn)
+    # ── Social data ──
+    is_liked = False
+    is_following = False
+    comments = []
+
+    if not burn and paste["visibility"] == "public":
+        user_id = session.get("user_id")
+
+        # Cek like
+        if user_id:
+            liked = db.table("paste_likes") \
+                .select("id") \
+                .eq("user_id", user_id) \
+                .eq("paste_id", paste["id"]) \
+                .execute()
+            is_liked = bool(liked.data)
+
+        # Cek follow
+        if user_id and paste.get("user_id") and user_id != paste["user_id"]:
+            target = db.table("users").select("id").eq("username", creator["username"]).execute() if creator else None
+            if target and target.data:
+                fol = db.table("user_follows") \
+                    .select("id") \
+                    .eq("follower_id", user_id) \
+                    .eq("following_id", target.data[0]["id"]) \
+                    .execute()
+                is_following = bool(fol.data)
+
+        # Ambil komentar
+        cmt = db.table("paste_comments") \
+            .select("id, content, created_at, user_id, users(username)") \
+            .eq("paste_id", paste["id"]) \
+            .order("created_at", desc=True) \
+            .limit(50) \
+            .execute()
+        comments = cmt.data or []
+
+    return render_template("view.html", paste=paste, creator=creator, burned=burn,
+                           is_liked=is_liked, is_following=is_following, comments=comments)
 
 @paste_bp.route("/p/<slug>/raw")
 def raw_paste(slug):

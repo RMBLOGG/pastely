@@ -25,10 +25,12 @@ app.WIB = WIB
 from routes.paste import paste_bp
 from routes.auth import auth_bp
 from routes.dashboard import dashboard_bp
+from routes.social import social_bp
 
 app.register_blueprint(paste_bp)
 app.register_blueprint(auth_bp)
 app.register_blueprint(dashboard_bp)
+app.register_blueprint(social_bp)
 
 # ── Template filters ──────────────────────────────────────────────────────────
 

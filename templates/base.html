@@ -101,6 +101,7 @@
       <a href="{{ url_for('paste.create') }}" class="mobile-nav-link"><i class="fa-solid fa-pen-to-square mr-1"></i> Buat Paste</a>
       <a href="{{ url_for('paste.search') }}" class="mobile-nav-link"><i class="fa-solid fa-magnifying-glass mr-1"></i> Cari Paste</a>
       {% if session.user_id %}
+        <a href="{{ url_for('social.following_feed') }}" class="mobile-nav-link"><i class="fa-solid fa-rss mr-1"></i> Feed</a>
         <a href="{{ url_for('dashboard.dashboard') }}" class="mobile-nav-link"><i class="fa-solid fa-table-columns mr-1"></i> Dashboard</a>
         <a href="{{ url_for('auth.profile', username=session.username) }}" class="mobile-nav-link"><i class="fa-solid fa-user mr-1"></i> @{{ session.username }}</a>
         <a href="{{ url_for('auth.logout') }}" class="mobile-nav-link" style="color:#ef4444;"><i class="fa-solid fa-right-from-bracket mr-1"></i> Keluar</a>
