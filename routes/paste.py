@@ -149,7 +149,10 @@ def create():
                 "user_id": user_id,
             }).execute()
         except Exception as e:
-            flash("Gagal menyimpan paste. Coba lagi.", "error")
+            import traceback
+            print(f"[ERROR] Gagal insert paste: {e}")
+            traceback.print_exc()
+            flash(f"Gagal menyimpan paste: {str(e)}", "error")
             return render_template("create.html")
 
         flash("Paste berhasil dibuat!", "success")
@@ -227,7 +230,7 @@ def view_paste(slug):
 
         # Cek follow
         if user_id and paste.get("user_id") and user_id != paste["user_id"]:
-            target = db.table("users").select("id").eq("username", creator["username"]).execute() if creator else None
+            target = db.table("pastely_users").select("id").eq("username", creator["username"]).execute() if creator else None
             if target and target.data:
                 fol = db.table("user_follows") \
                     .select("id") \
@@ -238,7 +241,7 @@ def view_paste(slug):
 
         # Ambil komentar
         cmt = db.table("paste_comments") \
-            .select("id, content, created_at, user_id, users(username)") \
+            .select("id, content, created_at, user_id, pastely_users(username)") \
             .eq("paste_id", paste["id"]) \
             .order("created_at", desc=True) \
             .limit(50) \

@@ -127,11 +127,11 @@
         {% for c in comments %}
         <div class="flex gap-3" id="comment-{{ c.id }}">
           <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-cyan-400 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
-            {{ c.users.username[0].upper() if c.users else '?' }}
+            {{ c.pastely_users.username[0].upper() if c.users else '?' }}
           </div>
           <div class="flex-1">
             <div class="flex items-center gap-2 mb-1">
-              <a href="{{ url_for('auth.profile', username=c.users.username) }}" class="text-xs font-bold text-gray-800 hover:text-pink-500">@{{ c.users.username if c.users else 'Unknown' }}</a>
+              <a href="{{ url_for('auth.profile', username=c.pastely_users.username) }}" class="text-xs font-bold text-gray-800 hover:text-pink-500">@{{ c.pastely_users.username if c.users else 'Unknown' }}</a>
               <span class="text-xs text-gray-400">{{ c.created_at | relative_time }}</span>
               {% if session.user_id == c.user_id %}
               <button onclick="deleteComment('{{ c.id }}')" class="text-xs text-red-400 hover:text-red-600 ml-auto">

@@ -6,7 +6,7 @@
 -- ── Tabel likes (bookmark paste) ──
 CREATE TABLE IF NOT EXISTS paste_likes (
   id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id    BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id    BIGINT NOT NULL REFERENCES pastely_users(id) ON DELETE CASCADE,
   paste_id   UUID NOT NULL REFERENCES snippets(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ DEFAULT now(),
   UNIQUE(user_id, paste_id)
@@ -20,7 +20,7 @@ CREATE POLICY "likes_all" ON paste_likes FOR ALL USING (true) WITH CHECK (true);
 CREATE TABLE IF NOT EXISTS paste_comments (
   id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   paste_id   UUID NOT NULL REFERENCES snippets(id) ON DELETE CASCADE,
-  user_id    BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id    BIGINT NOT NULL REFERENCES pastely_users(id) ON DELETE CASCADE,
   content    TEXT NOT NULL CHECK (char_length(content) BETWEEN 1 AND 1000),
   created_at TIMESTAMPTZ DEFAULT now()
 );
@@ -32,8 +32,8 @@ CREATE POLICY "comments_all" ON paste_comments FOR ALL USING (true) WITH CHECK (
 -- ── Tabel follow user ──
 CREATE TABLE IF NOT EXISTS user_follows (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  follower_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  following_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  follower_id BIGINT NOT NULL REFERENCES pastely_users(id) ON DELETE CASCADE,
+  following_id BIGINT NOT NULL REFERENCES pastely_users(id) ON DELETE CASCADE,
   created_at  TIMESTAMPTZ DEFAULT now(),
   UNIQUE(follower_id, following_id),
   CHECK (follower_id != following_id)

@@ -119,7 +119,7 @@ def toggle_follow(username):
     follower_id = session["user_id"]
 
     # Cari target user
-    target = db.table("users").select("id").eq("username", username).single().execute()
+    target = db.table("pastely_users").select("id").eq("username", username).single().execute()
     if not target.data:
         return jsonify({"error": "User tidak ditemukan"}), 404
 
@@ -181,7 +181,7 @@ def following_feed():
     if following_ids:
         # Ambil paste publik dari user yang difollow
         result = db.table("snippets") \
-            .select("slug, title, paste_type, language, created_at, view_count, like_count, user_id, users(username)") \
+            .select("slug, title, paste_type, language, created_at, view_count, like_count, user_id, pastely_users(username)") \
             .eq("visibility", "public") \
             .in_("user_id", following_ids) \
             .order("created_at", desc=True) \

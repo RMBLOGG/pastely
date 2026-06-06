@@ -23,11 +23,11 @@
     {% for paste in pastes %}
     <a href="{{ url_for('paste.view_paste', slug=paste.slug) }}" class="glass-card p-5 flex items-start gap-4 hover:border-pink-300 transition-all block">
       <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-400 to-cyan-400 flex items-center justify-center text-sm font-bold text-white flex-shrink-0">
-        {{ paste.users.username[0].upper() if paste.users else '?' }}
+        {{ paste.pastely_users.username[0].upper() if paste.users else '?' }}
       </div>
       <div class="flex-1 min-w-0">
         <div class="flex items-center gap-2 mb-1 flex-wrap">
-          <span class="text-sm font-bold text-gray-800">@{{ paste.users.username if paste.users else 'Unknown' }}</span>
+          <span class="text-sm font-bold text-gray-800">@{{ paste.pastely_users.username if paste.users else 'Unknown' }}</span>
           <span class="text-xs text-gray-400">{{ paste.created_at | relative_time }}</span>
           <span class="type-badge type-{{ paste.paste_type }} text-xs ml-auto">
             {% if paste.paste_type == 'code' %}<i class="fa-solid fa-code mr-1"></i>{{ paste.language or 'Kode' }}
