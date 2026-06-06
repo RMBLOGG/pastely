@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block content %}
+{# ── Hero Section ── #}
+<section class="relative overflow-hidden">
+  {# Background glow effects #}
+  <div class="absolute inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -left-40 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl"></div>
+    <div class="absolute -top-20 right-0 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl"></div>
+    <div class="absolute top-60 left-1/2 -translate-x-1/2 w-[600px] h-40 bg-indigo-500/10 rounded-full blur-3xl"></div>
+  </div>
+
+  <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16 text-center">
+    {# Badge #}
+    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-medium mb-8">
+      <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span>
+      Gratis & tanpa registrasi
+    </div>
+
+    {# Heading #}
+    <h1 class="text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight mb-6">
+      Share <span class="gradient-text">teks, kode</span><br />
+      dan link<span class="text-gray-600">.</span>
+    </h1>
+
+    <p class="text-lg sm:text-xl text-gray-400 mb-10 max-w-xl mx-auto leading-relaxed">
+      Platform simpel untuk berbagi konten dengan siapa saja.
+      Cepat, aman, dan bisa diatur kedaluwarsanya.
+    </p>
+
+    {# CTA Buttons #}
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mb-16">
+      <a href="{{ url_for('paste.create') }}" class="btn-primary text-base px-6 py-3 w-full sm:w-auto justify-center">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        Mulai Paste Sekarang
+      </a>
+      {% if not session.user_id %}
+      <a href="{{ url_for('auth.auth') }}" class="btn-ghost text-base px-6 py-3 w-full sm:w-auto justify-center">
+        Buat Akun Gratis
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </a>
+      {% endif %}
+    </div>
+
+    {# Feature cards mini #}
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
+      <div class="glass-card p-4 text-left">
+        <div class="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center mb-3">
+          <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+          </svg>
+        </div>
+        <p class="text-sm font-medium text-gray-200">Syntax Highlight</p>
+        <p class="text-xs text-gray-500 mt-1">Dukung 30+ bahasa pemrograman</p>
+      </div>
+      <div class="glass-card p-4 text-left">
+        <div class="w-8 h-8 rounded-lg bg-cyan-500/20 flex items-center justify-center mb-3">
+          <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+        </div>
+        <p class="text-sm font-medium text-gray-200">Privat & Aman</p>
+        <p class="text-xs text-gray-500 mt-1">Lindungi dengan password</p>
+      </div>
+      <div class="glass-card p-4 text-left">
+        <div class="w-8 h-8 rounded-lg bg-violet-500/20 flex items-center justify-center mb-3">
+          <svg class="w-4 h-4 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <p class="text-sm font-medium text-gray-200">Auto Kedaluwarsa</p>
+        <p class="text-xs text-gray-500 mt-1">Dari 1 jam sampai 30 hari</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ── Recent Public Pastes ── #}
+{% if pastes %}
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h2 class="text-xl font-semibold text-gray-100">Paste Terbaru</h2>
+      <p class="text-sm text-gray-500 mt-1">Dibagikan secara publik</p>
+    </div>
+    <a href="{{ url_for('paste.search') }}" class="text-sm text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-1">
+      Lihat semua
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+    </a>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    {% for paste in pastes %}
+    <a href="{{ url_for('paste.view_paste', slug=paste.slug) }}" class="paste-card group block">
+      <div class="flex items-start justify-between mb-3">
+        {# Tipe badge #}
+        <span class="type-badge type-{{ paste.paste_type }}">
+          {% if paste.paste_type == 'code' %}
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+            </svg>
+            {{ paste.language or 'Kode' }}
+          {% elif paste.paste_type == 'link' %}
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+            </svg>
+            Link
+          {% else %}
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
+            </svg>
+            Teks
+          {% endif %}
+        </span>
+
+        {# View count #}
+        <span class="text-xs text-gray-600 flex items-center gap-1">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+          </svg>
+          {{ paste.view_count }}
+        </span>
+      </div>
+
+      {# Judul #}
+      <h3 class="font-medium text-gray-200 group-hover:text-white transition-colors line-clamp-1 mb-2">
+        {{ paste.title or ('Tanpa Judul — ' + paste.slug) }}
+      </h3>
+
+      {# Waktu #}
+      <p class="text-xs text-gray-600">{{ paste.created_at | relative_time }}</p>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% else %}
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 text-center py-16">
+  <div class="glass-card max-w-md mx-auto p-12">
+    <div class="w-16 h-16 rounded-2xl bg-indigo-500/10 flex items-center justify-center mx-auto mb-4">
+      <svg class="w-8 h-8 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+    </div>
+    <h3 class="text-lg font-semibold text-gray-200 mb-2">Belum ada paste</h3>
+    <p class="text-sm text-gray-500 mb-6">Jadilah yang pertama berbagi sesuatu!</p>
+    <a href="{{ url_for('paste.create') }}" class="btn-primary text-sm px-5 py-2.5 inline-flex">
+      Buat Paste Pertama
+    </a>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

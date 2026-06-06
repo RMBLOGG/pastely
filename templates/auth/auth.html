@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+
+{% block title %}Masuk / Daftar — Pastely{% endblock %}
+
+{% block content %}
+<div class="min-h-[80vh] flex items-center justify-center px-4 py-12">
+  <div class="w-full max-w-sm">
+
+    {# Logo #}
+    <div class="text-center mb-8">
+      <a href="{{ url_for('paste.index') }}" class="inline-flex items-center gap-2 mb-6">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        </div>
+      </a>
+      <h1 class="text-2xl font-bold text-gray-100">Masuk ke Pastely</h1>
+      <p class="text-sm text-gray-500 mt-2">Gunakan username dan PIN 4 angka</p>
+    </div>
+
+    <div class="glass-card p-8">
+
+      {# Input username #}
+      <div class="mb-4">
+        <label class="form-label">Username</label>
+        <div class="relative">
+          <input
+            type="text"
+            id="username-input"
+            class="form-input pl-10"
+            placeholder="contoh: aeni_dev"
+            autocomplete="username"
+            autocapitalize="none"
+            maxlength="20"
+            spellcheck="false"
+          />
+          <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+            <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          </div>
+        </div>
+        <p id="username-error" class="text-xs text-red-400 mt-1 hidden"></p>
+      </div>
+
+      {# Tombol lanjut (muncul dulu sebelum PIN ditampilkan) #}
+      <button type="button" id="btn-lanjut" class="btn-primary w-full justify-center py-3 mb-4">
+        Lanjut
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+
+      {# Area PIN (muncul setelah username dicek) #}
+      <div id="pin-area" class="hidden">
+        {# Pesan dinamis #}
+        <div id="pin-message" class="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs mb-4">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span id="pin-message-text"></span>
+        </div>
+
+        {# Input PIN #}
+        <div class="mb-4">
+          <label class="form-label">PIN 4 Angka</label>
+          <div class="flex gap-2 justify-center">
+            <input type="password" class="pin-digit form-input text-center text-xl font-mono w-14 h-14 p-0" maxlength="1" inputmode="numeric" pattern="[0-9]" />
+            <input type="password" class="pin-digit form-input text-center text-xl font-mono w-14 h-14 p-0" maxlength="1" inputmode="numeric" pattern="[0-9]" />
+            <input type="password" class="pin-digit form-input text-center text-xl font-mono w-14 h-14 p-0" maxlength="1" inputmode="numeric" pattern="[0-9]" />
+            <input type="password" class="pin-digit form-input text-center text-xl font-mono w-14 h-14 p-0" maxlength="1" inputmode="numeric" pattern="[0-9]" />
+          </div>
+          <p id="pin-error" class="text-xs text-red-400 mt-1 text-center hidden"></p>
+        </div>
+
+        <button type="button" id="btn-submit" class="btn-primary w-full justify-center py-3">
+          <span id="btn-submit-text">Masuk</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+        </button>
+      </div>
+
+      {# Loading indicator #}
+      <div id="loading" class="hidden flex items-center justify-center gap-2 py-3 text-sm text-gray-500">
+        <div class="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+        Memproses...
+      </div>
+
+    </div>
+
+    <p class="text-center text-xs text-gray-700 mt-6">
+      Tidak perlu email. Hanya username dan PIN 4 angka.
+    </p>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const usernameInput = document.getElementById('username-input');
+const btnLanjut = document.getElementById('btn-lanjut');
+const pinArea = document.getElementById('pin-area');
+const pinDigits = document.querySelectorAll('.pin-digit');
+const pinMessage = document.getElementById('pin-message');
+const pinMessageText = document.getElementById('pin-message-text');
+const pinError = document.getElementById('pin-error');
+const usernameError = document.getElementById('username-error');
+const btnSubmit = document.getElementById('btn-submit');
+const btnSubmitText = document.getElementById('btn-submit-text');
+const loadingEl = document.getElementById('loading');
+
+// Tekan Enter di username = klik Lanjut
+usernameInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') btnLanjut.click();
+});
+
+// Tombol Lanjut — cek username
+btnLanjut.addEventListener('click', async () => {
+  const username = usernameInput.value.trim().toLowerCase();
+  if (!username) {
+    showUsernameError('Username tidak boleh kosong.');
+    return;
+  }
+
+  setLoading(true);
+  try {
+    const res = await fetch('/api/cek-username', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username })
+    });
+    const data = await res.json();
+
+    if (data.error) {
+      showUsernameError(data.error);
+      return;
+    }
+
+    // Tampilkan area PIN
+    clearUsernameError();
+    usernameInput.readOnly = true;
+    btnLanjut.classList.add('hidden');
+    pinArea.classList.remove('hidden');
+    pinMessageText.textContent = data.message;
+    btnSubmitText.textContent = data.exists ? 'Masuk' : 'Daftar & Masuk';
+    pinDigits[0].focus();
+
+  } catch (err) {
+    showUsernameError('Gagal terhubung ke server. Coba lagi.');
+  } finally {
+    setLoading(false);
+  }
+});
+
+// Auto-focus PIN digit berikutnya
+pinDigits.forEach((input, i) => {
+  input.addEventListener('input', () => {
+    // Hanya terima angka
+    input.value = input.value.replace(/[^0-9]/g, '');
+    if (input.value && i < pinDigits.length - 1) {
+      pinDigits[i + 1].focus();
+    }
+    // Auto submit jika semua terisi
+    if (getPin().length === 4) {
+      setTimeout(() => btnSubmit.click(), 100);
+    }
+  });
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Backspace' && !input.value && i > 0) {
+      pinDigits[i - 1].focus();
+    }
+    if (e.key === 'Enter') btnSubmit.click();
+  });
+});
+
+// Kumpulkan nilai PIN
+function getPin() {
+  return Array.from(pinDigits).map(d => d.value).join('');
+}
+
+// Submit PIN
+btnSubmit.addEventListener('click', async () => {
+  const username = usernameInput.value.trim().toLowerCase();
+  const pin = getPin();
+
+  if (pin.length !== 4) {
+    showPinError('PIN harus 4 angka.');
+    return;
+  }
+
+  setLoading(true);
+  try {
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, pin })
+    });
+    const data = await res.json();
+
+    if (data.error) {
+      showPinError(data.error);
+      // Kosongkan PIN
+      pinDigits.forEach(d => d.value = '');
+      pinDigits[0].focus();
+      return;
+    }
+
+    // Berhasil — redirect
+    if (data.new_user) {
+      window.location.href = data.redirect + '?baru=1';
+    } else {
+      window.location.href = data.redirect;
+    }
+
+  } catch (err) {
+    showPinError('Gagal terhubung. Coba lagi.');
+  } finally {
+    setLoading(false);
+  }
+});
+
+function setLoading(state) {
+  loadingEl.classList.toggle('hidden', !state);
+  btnLanjut.disabled = state;
+  btnSubmit.disabled = state;
+}
+
+function showUsernameError(msg) {
+  usernameError.textContent = msg;
+  usernameError.classList.remove('hidden');
+  usernameInput.classList.add('border-red-500/50');
+}
+
+function clearUsernameError() {
+  usernameError.classList.add('hidden');
+  usernameInput.classList.remove('border-red-500/50');
+}
+
+function showPinError(msg) {
+  pinError.textContent = msg;
+  pinError.classList.remove('hidden');
+}
+</script>
+{% endblock %}

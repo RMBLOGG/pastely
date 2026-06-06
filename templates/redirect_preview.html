@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Mengalihkan ke {{ url }} — Pastely{% endblock %}
+
+{% block content %}
+<div class="min-h-[70vh] flex items-center justify-center px-4">
+  <div class="glass-card max-w-lg w-full p-10 text-center">
+
+    {# Ikon link #}
+    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-cyan-500/20 border border-indigo-500/20 flex items-center justify-center mx-auto mb-6">
+      <svg class="w-8 h-8 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+      </svg>
+    </div>
+
+    <h1 class="text-xl font-semibold text-gray-100 mb-2">
+      {{ paste.title or 'Mengalihkan...' }}
+    </h1>
+
+    <p class="text-sm text-gray-500 mb-6">Kamu akan diarahkan ke:</p>
+
+    {# URL tujuan #}
+    <div class="px-4 py-3 rounded-xl bg-gray-900/80 border border-white/5 mb-8 overflow-hidden">
+      <p class="text-sm text-indigo-400 font-mono break-all">{{ url }}</p>
+    </div>
+
+    {# Countdown #}
+    <div class="mb-6">
+      <div class="text-4xl font-bold gradient-text mb-2" id="countdown">3</div>
+      <p class="text-sm text-gray-500" id="countdown-text">Mengalihkan dalam <span id="countdown-num">3</span> detik...</p>
+    </div>
+
+    {# Progress bar #}
+    <div class="w-full h-1 bg-gray-800 rounded-full overflow-hidden mb-6">
+      <div id="progress-bar" class="h-full bg-gradient-to-r from-indigo-500 to-cyan-400 rounded-full transition-all duration-1000 ease-linear" style="width: 0%"></div>
+    </div>
+
+    {# Tombol aksi #}
+    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+      <a href="{{ url }}" class="btn-primary text-sm px-5 py-2.5" id="go-now-btn">
+        Lanjutkan Sekarang
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+        </svg>
+      </a>
+      <a href="{{ url_for('paste.index') }}" class="btn-ghost text-sm px-5 py-2.5">
+        Batalkan
+      </a>
+    </div>
+
+    {# Peringatan keamanan #}
+    <p class="text-xs text-gray-700 mt-6">
+      Pastely tidak bertanggung jawab atas konten di situs tujuan.
+      Pastikan kamu mengenali alamat tersebut sebelum melanjutkan.
+    </p>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const targetUrl = {{ url | tojson }};
+let count = 3;
+const countdownEl = document.getElementById('countdown');
+const countdownNumEl = document.getElementById('countdown-num');
+const progressBar = document.getElementById('progress-bar');
+
+// Mulai progress bar
+setTimeout(() => { progressBar.style.width = '33%'; }, 50);
+
+const timer = setInterval(() => {
+  count--;
+  countdownEl.textContent = count;
+  countdownNumEl.textContent = count;
+  progressBar.style.width = ((3 - count) / 3 * 100) + '%';
+
+  if (count <= 0) {
+    clearInterval(timer);
+    window.location.href = targetUrl;
+  }
+}, 1000);
+</script>
+{% endblock %}

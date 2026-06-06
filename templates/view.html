@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+
+{% block title %}{{ paste.title or 'Paste ' + paste.slug }} — Pastely{% endblock %}
+{% block og_title %}{{ paste.title or 'Paste #' + paste.slug }}{% endblock %}
+{% block og_desc %}{{ paste.content[:150] + '...' if paste.content|length > 150 else paste.content }}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+  {% if burned %}
+  <div class="mb-6 flex items-center gap-3 px-4 py-3 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-400 text-sm">
+    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+    </svg>
+    <span><strong>Peringatan:</strong> Paste ini sudah terbakar! Konten ini tidak akan bisa diakses lagi setelah halaman ini ditutup.</span>
+  </div>
+  {% endif %}
+
+  <div class="flex flex-col lg:flex-row gap-6">
+
+    {# ── Kolom Konten (kiri) ── #}
+    <div class="flex-1 min-w-0">
+
+      {# Header paste #}
+      <div class="mb-4">
+        <div class="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <h1 class="text-xl font-semibold text-gray-100">
+              {{ paste.title or 'Tanpa Judul' }}
+            </h1>
+            <div class="flex items-center gap-3 mt-2 flex-wrap">
+              <span class="type-badge type-{{ paste.paste_type }}">
+                {% if paste.paste_type == 'code' %}Kode ({{ paste.language or 'plaintext' }})
+                {% elif paste.paste_type == 'link' %}Link
+                {% else %}Teks{% endif %}
+              </span>
+              <span class="text-xs text-gray-600">Slug: <code class="text-gray-500 font-mono">{{ paste.slug }}</code></span>
+            </div>
+          </div>
+
+          {# Action buttons #}
+          <div class="flex items-center gap-2 flex-wrap">
+            <button onclick="copyContent()" class="btn-ghost text-sm px-3 py-2" title="Salin konten">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+              Salin
+            </button>
+            <button onclick="shareLink()" class="btn-ghost text-sm px-3 py-2" title="Bagikan link">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+              </svg>
+              Bagikan
+            </button>
+            <a href="{{ url_for('paste.raw_paste', slug=paste.slug) }}" target="_blank" class="btn-ghost text-sm px-3 py-2" title="Lihat raw">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+              </svg>
+              Raw
+            </a>
+            {% if not burned %}
+            <a href="{{ url_for('paste.fork_paste', slug=paste.slug) }}" class="btn-ghost text-sm px-3 py-2" title="Fork paste ini">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+              </svg>
+              Fork
+            </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      {# Konten paste #}
+      <div class="glass-card overflow-hidden">
+        {% if paste.paste_type == 'code' %}
+          <div class="flex items-center justify-between px-4 py-2.5 border-b border-white/5 bg-gray-900/50">
+            <span class="text-xs text-gray-500 font-mono">{{ paste.language or 'plaintext' }}</span>
+            <span class="text-xs text-gray-600">{{ paste.content.split('\n')|length }} baris</span>
+          </div>
+          <pre class="overflow-x-auto"><code class="language-{{ paste.language or 'plaintext' }} hljs p-5 block text-sm leading-relaxed">{{ paste.content | e }}</code></pre>
+        {% else %}
+          <div class="p-6 prose prose-invert max-w-none">
+            <pre class="whitespace-pre-wrap break-words text-gray-200 text-sm leading-relaxed font-sans">{{ paste.content | e }}</pre>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    {# ── Sidebar (kanan) ── #}
+    <div class="w-full lg:w-72 flex-shrink-0 space-y-4">
+
+      {# Metadata #}
+      <div class="glass-card p-5">
+        <h3 class="text-sm font-semibold text-gray-300 mb-4">Informasi</h3>
+        <div class="space-y-3">
+
+          <div class="flex items-start gap-3">
+            <svg class="w-4 h-4 text-gray-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <div>
+              <p class="text-xs text-gray-600 mb-0.5">Dibuat</p>
+              <p class="text-xs text-gray-300">{{ paste.created_at | format_wib }}</p>
+              <p class="text-xs text-gray-600">{{ paste.created_at | relative_time }}</p>
+            </div>
+          </div>
+
+          {% if paste.expires_at %}
+          <div class="flex items-start gap-3">
+            <svg class="w-4 h-4 text-gray-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              <p class="text-xs text-gray-600 mb-0.5">Kedaluwarsa</p>
+              <p class="text-xs text-gray-300">{{ paste.expires_at | format_wib }}</p>
+              <p class="text-xs text-orange-400">{{ paste.expires_at | relative_time }}</p>
+            </div>
+          </div>
+          {% else %}
+          <div class="flex items-center gap-3">
+            <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+            </svg>
+            <p class="text-xs text-gray-500">Tidak pernah kedaluwarsa</p>
+          </div>
+          {% endif %}
+
+          <div class="flex items-center gap-3">
+            <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            <p class="text-xs text-gray-400"><strong class="text-gray-200">{{ paste.view_count }}</strong> kali dilihat</p>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {% if paste.visibility == 'public' %}
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064" />
+              {% elif paste.visibility == 'unlisted' %}
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+              {% else %}
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              {% endif %}
+            </svg>
+            <p class="text-xs text-gray-400">
+              {% if paste.visibility == 'public' %}Publik
+              {% elif paste.visibility == 'unlisted' %}Unlisted
+              {% else %}Privat
+              {% endif %}
+            </p>
+          </div>
+
+          {% if paste.burn_after_read %}
+          <div class="flex items-center gap-3">
+            <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+            </svg>
+            <p class="text-xs text-orange-400">Bakar setelah dibaca</p>
+          </div>
+          {% endif %}
+
+        </div>
+      </div>
+
+      {# Pembuat #}
+      {% if creator %}
+      <div class="glass-card p-5">
+        <h3 class="text-sm font-semibold text-gray-300 mb-3">Dibuat oleh</h3>
+        <a href="{{ url_for('auth.profile', username=creator.username) }}" class="flex items-center gap-3 group">
+          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-400 flex items-center justify-center text-sm font-bold flex-shrink-0">
+            {{ creator.username[0].upper() }}
+          </div>
+          <div>
+            <p class="text-sm font-medium text-gray-200 group-hover:text-white transition-colors">@{{ creator.username }}</p>
+            <p class="text-xs text-gray-600">Bergabung {{ creator.created_at | relative_time }}</p>
+          </div>
+        </a>
+      </div>
+      {% else %}
+      <div class="glass-card p-5">
+        <p class="text-xs text-gray-600 text-center">Dibuat oleh tamu anonim</p>
+      </div>
+      {% endif %}
+
+      {# Tombol edit & hapus — hanya untuk pemilik #}
+      {% if session.user_id and paste.user_id == session.user_id %}
+      <div class="glass-card p-4 space-y-2">
+        <a href="{{ url_for('paste.edit_paste', slug=paste.slug) }}" class="btn-ghost w-full justify-center text-sm py-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+          Edit Paste
+        </a>
+        <form method="POST" action="{{ url_for('paste.delete_paste', slug=paste.slug) }}" onsubmit="return confirm('Yakin mau menghapus paste ini? Tindakan ini tidak bisa dibatalkan.')">
+          <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm text-red-400 hover:bg-red-500/10 border border-white/5 hover:border-red-500/20 transition-all duration-200">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            Hapus Paste
+          </button>
+        </form>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+
+{# Toast notifikasi salin #}
+<div id="copy-toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 px-4 py-2.5 rounded-xl bg-gray-800 border border-white/10 text-sm text-gray-200 shadow-xl opacity-0 pointer-events-none transition-all duration-300 flex items-center gap-2 z-50">
+  <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+  </svg>
+  Berhasil disalin!
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Syntax highlight
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el));
+});
+
+// Salin konten paste
+function copyContent() {
+  const content = {{ paste.content | tojson }};
+  navigator.clipboard.writeText(content).then(() => showToast('Konten berhasil disalin!'));
+}
+
+// Bagikan link
+function shareLink() {
+  navigator.clipboard.writeText(window.location.href).then(() => showToast('Link berhasil disalin!'));
+}
+
+// Tampilkan toast notifikasi
+function showToast(msg) {
+  const toast = document.getElementById('copy-toast');
+  toast.querySelector('span') && (toast.querySelector('span').textContent = msg);
+  toast.textContent = '';
+  toast.innerHTML = `<svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg> ${msg}`;
+  toast.classList.remove('opacity-0');
+  toast.classList.add('opacity-100', 'translate-y-0');
+  setTimeout(() => {
+    toast.classList.remove('opacity-100', 'translate-y-0');
+    toast.classList.add('opacity-0');
+  }, 2500);
+}
+</script>
+{% endblock %}

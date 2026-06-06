@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard — Pastely{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+  {# Header #}
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-100">Dashboard</h1>
+      <p class="text-sm text-gray-500 mt-1">Selamat datang kembali, <span class="text-indigo-400">@{{ session.username }}</span>!</p>
+    </div>
+    <a href="{{ url_for('paste.create') }}" class="btn-primary text-sm px-4 py-2.5">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      Buat Paste
+    </a>
+  </div>
+
+  {# Statistik #}
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+    <div class="glass-card p-5">
+      <p class="text-xs text-gray-600 mb-1">Total Paste</p>
+      <p class="text-3xl font-bold gradient-text">{{ total_paste }}</p>
+    </div>
+    <div class="glass-card p-5">
+      <p class="text-xs text-gray-600 mb-1">Total Dilihat</p>
+      <p class="text-3xl font-bold gradient-text">{{ total_views }}</p>
+    </div>
+    <div class="glass-card p-5">
+      <p class="text-xs text-gray-600 mb-1">Publik</p>
+      <p class="text-3xl font-bold text-green-400">{{ public_count }}</p>
+    </div>
+    <div class="glass-card p-5">
+      <p class="text-xs text-gray-600 mb-1">Privat</p>
+      <p class="text-3xl font-bold text-orange-400">{{ private_count }}</p>
+    </div>
+  </div>
+
+  {# Daftar paste #}
+  {% if pastes %}
+  <div class="glass-card overflow-hidden">
+    <div class="px-6 py-4 border-b border-white/5 flex items-center justify-between">
+      <h2 class="text-sm font-semibold text-gray-300">Semua Paste Kamu</h2>
+      <span class="text-xs text-gray-600">{{ pastes|length }} paste</span>
+    </div>
+
+    <div class="divide-y divide-white/5">
+      {% for paste in pastes %}
+      <div class="px-6 py-4 flex items-center gap-4 hover:bg-white/2 transition-colors group">
+
+        {# Tipe badge #}
+        <span class="type-badge type-{{ paste.paste_type }} flex-shrink-0">
+          {% if paste.paste_type == 'code' %}{{ paste.language or 'Kode' }}
+          {% elif paste.paste_type == 'link' %}Link
+          {% else %}Teks{% endif %}
+        </span>
+
+        {# Info paste #}
+        <div class="flex-1 min-w-0">
+          <a href="{{ url_for('paste.view_paste', slug=paste.slug) }}" class="text-sm font-medium text-gray-200 hover:text-white transition-colors line-clamp-1">
+            {{ paste.title or ('Tanpa Judul — ' + paste.slug) }}
+          </a>
+          <div class="flex items-center gap-3 mt-1 flex-wrap">
+            <span class="text-xs text-gray-600">{{ paste.created_at | relative_time }}</span>
+            <span class="text-xs text-gray-700">•</span>
+            <span class="text-xs text-gray-600 flex items-center gap-1">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              {{ paste.view_count }}
+            </span>
+            {# Visibilitas #}
+            <span class="text-xs {% if paste.visibility == 'public' %}text-green-600{% elif paste.visibility == 'unlisted' %}text-yellow-600{% else %}text-red-600{% endif %}">
+              {% if paste.visibility == 'public' %}● Publik
+              {% elif paste.visibility == 'unlisted' %}● Unlisted
+              {% else %}● Privat{% endif %}
+            </span>
+            {% if paste.expires_at %}
+            <span class="text-xs text-orange-600">⏱ {{ paste.expires_at | relative_time }}</span>
+            {% endif %}
+            {% if paste.burn_after_read %}
+            <span class="text-xs text-orange-500">🔥 Bakar</span>
+            {% endif %}
+          </div>
+        </div>
+
+        {# Aksi #}
+        <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+          <a href="{{ url_for('paste.edit_paste', slug=paste.slug) }}" class="p-2 rounded-lg hover:bg-white/5 text-gray-500 hover:text-gray-300 transition-colors" title="Edit">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+          </a>
+          <form method="POST" action="{{ url_for('paste.delete_paste', slug=paste.slug) }}" onsubmit="return confirm('Hapus paste ini?')">
+            <button type="submit" class="p-2 rounded-lg hover:bg-red-500/10 text-gray-600 hover:text-red-400 transition-colors" title="Hapus">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </form>
+          <button onclick="copyPasteLink('{{ paste.slug }}')" class="p-2 rounded-lg hover:bg-white/5 text-gray-500 hover:text-gray-300 transition-colors" title="Salin link">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+            </svg>
+          </button>
+        </div>
+
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% else %}
+  <div class="glass-card p-16 text-center">
+    <div class="w-16 h-16 rounded-2xl bg-indigo-500/10 flex items-center justify-center mx-auto mb-4">
+      <svg class="w-8 h-8 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+    </div>
+    <h3 class="text-lg font-semibold text-gray-200 mb-2">Kamu belum punya paste</h3>
+    <p class="text-sm text-gray-500 mb-6">Mulai berbagi sekarang!</p>
+    <a href="{{ url_for('paste.create') }}" class="btn-primary text-sm px-5 py-2.5 inline-flex">
+      Buat Paste Pertama
+    </a>
+  </div>
+  {% endif %}
+
+</div>
+
+{# Toast salin link #}
+<div id="copy-toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 px-4 py-2.5 rounded-xl bg-gray-800 border border-white/10 text-sm text-gray-200 shadow-xl opacity-0 pointer-events-none transition-all duration-300 flex items-center gap-2 z-50">
+  <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+  </svg>
+  Link berhasil disalin!
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function copyPasteLink(slug) {
+  const url = window.location.origin + '/p/' + slug;
+  navigator.clipboard.writeText(url).then(() => {
+    const toast = document.getElementById('copy-toast');
+    toast.classList.remove('opacity-0');
+    toast.classList.add('opacity-100');
+    setTimeout(() => {
+      toast.classList.remove('opacity-100');
+      toast.classList.add('opacity-0');
+    }, 2500);
+  });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}@{{ profile_user.username }} — Pastely{% endblock %}
+{% block og_title %}@{{ profile_user.username }} di Pastely{% endblock %}
+{% block og_desc %}{{ pastes|length }} paste publik oleh @{{ profile_user.username }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+  {# Header profil #}
+  <div class="glass-card p-8 mb-6">
+    <div class="flex items-start gap-6 flex-wrap">
+      {# Avatar inisial #}
+      <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-500 to-cyan-400 flex items-center justify-center text-3xl font-bold text-white flex-shrink-0 shadow-lg shadow-indigo-500/20">
+        {{ profile_user.username[0].upper() }}
+      </div>
+
+      <div class="flex-1">
+        <div class="flex items-center gap-3 flex-wrap">
+          <h1 class="text-2xl font-bold text-gray-100">@{{ profile_user.username }}</h1>
+          {% if is_own_profile %}
+          <span class="px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs">Kamu</span>
+          {% endif %}
+        </div>
+
+        <div class="flex items-center gap-6 mt-3 text-sm text-gray-500 flex-wrap">
+          <span class="flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            Bergabung {{ profile_user.created_at | format_wib }}
+          </span>
+          <span class="flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            {{ pastes|length }} paste publik
+          </span>
+          <span class="flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            {{ total_views }} total dilihat
+          </span>
+        </div>
+      </div>
+
+      {% if is_own_profile %}
+      <a href="{{ url_for('dashboard.dashboard') }}" class="btn-ghost text-sm px-4 py-2">
+        Dashboard
+      </a>
+      {% endif %}
+    </div>
+  </div>
+
+  {# Daftar paste publik #}
+  {% if pastes %}
+  <div>
+    <h2 class="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-wider">Paste Publik</h2>
+    <div class="space-y-3">
+      {% for paste in pastes %}
+      <a href="{{ url_for('paste.view_paste', slug=paste.slug) }}" class="paste-card group block">
+        <div class="flex items-center justify-between gap-4">
+          <div class="flex items-center gap-3 min-w-0">
+            <span class="type-badge type-{{ paste.paste_type }} flex-shrink-0">
+              {% if paste.paste_type == 'code' %}{{ paste.language or 'Kode' }}
+              {% elif paste.paste_type == 'link' %}Link
+              {% else %}Teks{% endif %}
+            </span>
+            <div class="min-w-0">
+              <p class="text-sm font-medium text-gray-200 group-hover:text-white transition-colors line-clamp-1">
+                {{ paste.title or ('Tanpa Judul — ' + paste.slug) }}
+              </p>
+              <p class="text-xs text-gray-600 mt-0.5">{{ paste.created_at | relative_time }}</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 flex-shrink-0 text-xs text-gray-600">
+            <span class="flex items-center gap-1">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              {{ paste.view_count }}
+            </span>
+            <svg class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% else %}
+  <div class="glass-card p-12 text-center">
+    <p class="text-gray-500 text-sm">Belum ada paste publik dari @{{ profile_user.username }}</p>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

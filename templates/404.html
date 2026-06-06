@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}404 — Halaman Tidak Ditemukan — Pastely{% endblock %}
+{% block content %}
+<div class="min-h-[70vh] flex items-center justify-center px-4">
+  <div class="text-center">
+    <div class="text-8xl font-bold gradient-text mb-4">404</div>
+    <h1 class="text-2xl font-semibold text-gray-200 mb-3">Halaman tidak ditemukan</h1>
+    <p class="text-gray-500 text-sm mb-8">Paste yang kamu cari mungkin sudah dihapus atau tidak pernah ada.</p>
+    <div class="flex gap-3 justify-center">
+      <a href="{{ url_for('paste.index') }}" class="btn-primary text-sm px-5 py-2.5">Ke Beranda</a>
+      <a href="{{ url_for('paste.create') }}" class="btn-ghost text-sm px-5 py-2.5">Buat Paste</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

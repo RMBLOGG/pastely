@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+
+{% block title %}{% if edit %}Edit Paste{% elif fork %}Fork Paste{% else %}Buat Paste Baru{% endif %} — Pastely{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+  {# Header #}
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-100">
+      {% if edit %}Edit Paste
+      {% elif fork %}Fork Paste
+      {% else %}Buat Paste Baru
+      {% endif %}
+    </h1>
+    <p class="text-sm text-gray-500 mt-1">
+      {% if edit %}Perbarui konten paste kamu
+      {% elif fork %}Buat salinan dari paste ini
+      {% else %}Bagikan teks, kode, atau link dengan mudah
+      {% endif %}
+    </p>
+  </div>
+
+  <form method="POST" action="{% if edit %}{{ url_for('paste.edit_paste', slug=paste.slug) }}{% else %}{{ url_for('paste.create') }}{% endif %}" id="paste-form">
+
+    {# ── Tab Pilih Mode (hanya saat buat baru atau fork) ── #}
+    {% if not edit %}
+    <div class="glass-card p-1.5 inline-flex rounded-xl mb-6" id="type-tabs">
+      <button type="button" data-type="text" class="tab-btn {% if (fork and fork.paste_type == 'text') or (not fork) %}tab-active{% endif %} px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200">
+        <svg class="w-4 h-4 inline mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
+        </svg>
+        Teks
+      </button>
+      <button type="button" data-type="code" class="tab-btn {% if fork and fork.paste_type == 'code' %}tab-active{% endif %} px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200">
+        <svg class="w-4 h-4 inline mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+        </svg>
+        Kode
+      </button>
+      <button type="button" data-type="link" class="tab-btn {% if fork and fork.paste_type == 'link' %}tab-active{% endif %} px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200">
+        <svg class="w-4 h-4 inline mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+        </svg>
+        Link
+      </button>
+    </div>
+    <input type="hidden" name="paste_type" id="paste_type" value="{{ (fork.paste_type if fork) or 'text' }}" />
+    {% else %}
+    <input type="hidden" name="paste_type" value="{{ paste.paste_type }}" />
+    {% endif %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      {# ── Kolom Kiri (konten) ── #}
+      <div class="lg:col-span-2 space-y-4">
+
+        {# Judul #}
+        <div>
+          <label class="form-label">Judul <span class="text-gray-600">(opsional)</span></label>
+          <input
+            type="text"
+            name="title"
+            class="form-input"
+            placeholder="Beri judul paste kamu..."
+            value="{{ (paste.title if edit and paste.title) or (fork.title if fork and fork.title) or '' }}"
+            maxlength="200"
+          />
+        </div>
+
+        {# Pilih bahasa (hanya untuk mode code) #}
+        <div id="language-selector" class="{% if (fork and fork.paste_type != 'code') or (not fork and not edit) %}hidden{% endif %}">
+          <label class="form-label">Bahasa Pemrograman</label>
+          <select name="language" id="language-select" class="form-input">
+            {% set langs = [
+              ('plaintext','Teks Biasa'), ('python','Python'), ('javascript','JavaScript'),
+              ('typescript','TypeScript'), ('html','HTML'), ('css','CSS'),
+              ('json','JSON'), ('bash','Bash / Shell'), ('sql','SQL'),
+              ('php','PHP'), ('java','Java'), ('c','C'), ('cpp','C++'),
+              ('csharp','C#'), ('go','Go'), ('rust','Rust'), ('ruby','Ruby'),
+              ('swift','Swift'), ('kotlin','Kotlin'), ('dart','Dart'),
+              ('yaml','YAML'), ('toml','TOML'), ('markdown','Markdown'),
+              ('xml','XML'), ('dockerfile','Dockerfile'), ('nginx','Nginx'),
+              ('r','R'), ('matlab','MATLAB'), ('lua','Lua'), ('perl','Perl')
+            ] %}
+            {% for val, label in langs %}
+              <option value="{{ val }}" {% if (edit and paste.language == val) or (fork and fork.language == val) %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        {# Area konten #}
+        <div>
+          <label class="form-label">Konten <span class="text-red-400">*</span></label>
+          <div id="content-hint-text" class="text-xs text-gray-600 mb-2 {% if fork and fork.paste_type != 'text' %}hidden{% endif %}">Tulis teks yang ingin kamu bagikan</div>
+          <div id="content-hint-code" class="text-xs text-gray-600 mb-2 {% if not (fork and fork.paste_type == 'code') %}hidden{% endif %}">Tempel kode kamu di sini</div>
+          <div id="content-hint-link" class="text-xs text-gray-600 mb-2 {% if not (fork and fork.paste_type == 'link') %}hidden{% endif %}">Masukkan URL lengkap (dimulai dengan https://)</div>
+
+          {% if edit and paste.paste_type == 'code' %}
+          <textarea
+            name="content"
+            id="content-area"
+            class="form-textarea font-mono text-sm"
+            rows="18"
+            placeholder="Tempel kode kamu di sini..."
+            required
+          >{{ paste.content if edit else (fork.content if fork else '') }}</textarea>
+          {% else %}
+          <textarea
+            name="content"
+            id="content-area"
+            class="form-textarea"
+            rows="18"
+            placeholder="Tulis sesuatu..."
+            required
+          >{{ paste.content if edit else (fork.content if fork else '') }}</textarea>
+          {% endif %}
+        </div>
+      </div>
+
+      {# ── Kolom Kanan (pengaturan) ── #}
+      <div class="space-y-4">
+
+        {# Visibilitas #}
+        <div class="glass-card p-4">
+          <label class="form-label mb-3">Visibilitas</label>
+          <div class="space-y-2">
+            {% for val, icon, label, desc in [
+              ('public', '🌐', 'Publik', 'Semua orang bisa lihat'),
+              ('unlisted', '🔗', 'Unlisted', 'Hanya yang punya link'),
+              ('private', '🔒', 'Privat', 'Dilindungi password'),
+            ] %}
+            <label class="visibility-option {% if (edit and paste.visibility == val) or (not edit and val == 'public') %}visibility-selected{% endif %}">
+              <input type="radio" name="visibility" value="{{ val }}" class="sr-only"
+                {% if (edit and paste.visibility == val) or (not edit and val == 'public') %}checked{% endif %}
+              />
+              <span class="text-base">{{ icon }}</span>
+              <div class="flex-1 min-w-0">
+                <span class="text-sm font-medium text-gray-200 block">{{ label }}</span>
+                <span class="text-xs text-gray-500">{{ desc }}</span>
+              </div>
+            </label>
+            {% endfor %}
+          </div>
+
+          {# Input password (untuk private) #}
+          <div id="password-field" class="mt-3 {% if not (edit and paste.visibility == 'private') %}hidden{% endif %}">
+            <input
+              type="password"
+              name="password"
+              id="paste-password"
+              class="form-input text-sm"
+              placeholder="{% if edit %}Biarkan kosong untuk tidak mengubah password{% else %}Buat password...{% endif %}"
+              {% if not edit %}minlength="1"{% endif %}
+            />
+          </div>
+        </div>
+
+        {# Kedaluwarsa (hanya saat buat baru) #}
+        {% if not edit %}
+        <div class="glass-card p-4">
+          <label class="form-label mb-3">Kedaluwarsa</label>
+          <select name="expiry" class="form-input text-sm">
+            <option value="never">Tidak pernah</option>
+            <option value="1h">1 Jam</option>
+            <option value="1d">1 Hari</option>
+            <option value="7d">7 Hari</option>
+            <option value="30d">30 Hari</option>
+          </select>
+        </div>
+
+        {# Opsi tambahan #}
+        <div class="glass-card p-4">
+          <label class="form-label mb-3">Opsi Tambahan</label>
+          <label class="flex items-center gap-3 cursor-pointer group">
+            <div class="relative">
+              <input type="checkbox" name="burn_after_read" id="burn-toggle" class="sr-only peer" />
+              <div class="w-10 h-5 rounded-full bg-gray-800 peer-checked:bg-indigo-500 transition-colors border border-white/10 peer-checked:border-indigo-500/50"></div>
+              <div class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-gray-400 peer-checked:bg-white peer-checked:translate-x-5 transition-all"></div>
+            </div>
+            <div>
+              <span class="text-sm text-gray-300 block">Bakar setelah dibaca</span>
+              <span class="text-xs text-gray-600">Otomatis terhapus setelah dibuka 1x</span>
+            </div>
+          </label>
+        </div>
+        {% endif %}
+
+        {# Tombol submit #}
+        <button type="submit" class="btn-primary w-full py-3 justify-center text-base">
+          {% if edit %}
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            Simpan Perubahan
+          {% else %}
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Buat Paste
+          {% endif %}
+        </button>
+
+        {% if not session.user_id %}
+        <p class="text-xs text-gray-600 text-center">
+          <a href="{{ url_for('auth.auth') }}" class="text-indigo-400 hover:underline">Login</a> untuk bisa edit & hapus paste nanti
+        </p>
+        {% endif %}
+      </div>
+
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// ── Tab mode (teks / kode / link) ─────────────────────────────────────────
+
+const tabs = document.querySelectorAll('.tab-btn');
+const pasteTypeInput = document.getElementById('paste_type');
+const langSelector = document.getElementById('language-selector');
+const langSelect = document.getElementById('language-select');
+const contentArea = document.getElementById('content-area');
+const hintText = document.getElementById('content-hint-text');
+const hintCode = document.getElementById('content-hint-code');
+const hintLink = document.getElementById('content-hint-link');
+
+function switchTab(type) {
+  tabs.forEach(t => {
+    t.classList.toggle('tab-active', t.dataset.type === type);
+  });
+  pasteTypeInput.value = type;
+
+  // Tampilkan/sembunyikan selector bahasa
+  langSelector.classList.toggle('hidden', type !== 'code');
+
+  // Update hint & placeholder
+  hintText.classList.toggle('hidden', type !== 'text');
+  hintCode.classList.toggle('hidden', type !== 'code');
+  hintLink.classList.toggle('hidden', type !== 'link');
+
+  if (type === 'code') {
+    contentArea.classList.add('font-mono', 'text-sm');
+    contentArea.placeholder = 'Tempel kode kamu di sini...';
+  } else if (type === 'link') {
+    contentArea.classList.remove('font-mono', 'text-sm');
+    contentArea.placeholder = 'https://contoh.com/halaman-yang-ingin-dibagikan';
+    contentArea.rows = 4;
+  } else {
+    contentArea.classList.remove('font-mono', 'text-sm');
+    contentArea.placeholder = 'Tulis sesuatu yang ingin kamu bagikan...';
+    contentArea.rows = 18;
+  }
+}
+
+if (tabs.length > 0) {
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => switchTab(tab.dataset.type));
+  });
+  // Init dengan tipe yang aktif
+  switchTab(pasteTypeInput.value || 'text');
+}
+
+// ── Visibility radio dengan visual feedback ───────────────────────────────
+
+const visibilityOptions = document.querySelectorAll('.visibility-option');
+const passwordField = document.getElementById('password-field');
+
+visibilityOptions.forEach(opt => {
+  opt.addEventListener('click', function() {
+    visibilityOptions.forEach(o => o.classList.remove('visibility-selected'));
+    this.classList.add('visibility-selected');
+    const radio = this.querySelector('input[type=radio]');
+    radio.checked = true;
+    passwordField.classList.toggle('hidden', radio.value !== 'private');
+  });
+});
+
+// Inisialisasi password field
+const checkedVis = document.querySelector('input[name=visibility]:checked');
+if (checkedVis && checkedVis.value === 'private') {
+  passwordField.classList.remove('hidden');
+}
+</script>
+{% endblock %}
