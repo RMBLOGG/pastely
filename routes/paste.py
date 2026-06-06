@@ -219,34 +219,53 @@ def view_paste(slug):
     if not burn and paste["visibility"] == "public":
         user_id = session.get("user_id")
 
-        # Cek like
-        if user_id:
-            liked = db.table("paste_likes") \
-                .select("id") \
-                .eq("user_id", user_id) \
-                .eq("paste_id", paste["id"]) \
-                .execute()
-            is_liked = bool(liked.data)
-
-        # Cek follow
-        if user_id and paste.get("user_id") and user_id != paste["user_id"]:
-            target = db.table("pastely_users").select("id").eq("username", creator["username"]).execute() if creator else None
-            if target and target.data:
-                fol = db.table("user_follows") \
+        try:
+            # Cek like
+            if user_id:
+                liked = db.table("paste_likes") \
                     .select("id") \
-                    .eq("follower_id", user_id) \
-                    .eq("following_id", target.data[0]["id"]) \
+                    .eq("user_id", user_id) \
+                    .eq("paste_id", paste["id"]) \
                     .execute()
-                is_following = bool(fol.data)
+                is_liked = bool(liked.data)
+        except Exception as e:
+            print(f"[WARN] like check failed: {e}")
 
-        # Ambil komentar
-        cmt = db.table("paste_comments") \
-            .select("id, content, created_at, user_id, pastely_users(username)") \
-            .eq("paste_id", paste["id"]) \
-            .order("created_at", desc=True) \
-            .limit(50) \
-            .execute()
-        comments = cmt.data or []
+        try:
+            # Cek follow
+            if user_id and paste.get("user_id") and user_id != paste["user_id"]:
+                target = db.table("pastely_users").select("id").eq("username", creator["username"]).execute() if creator else None
+                if target and target.data:
+                    fol = db.table("user_follows") \
+                        .select("id") \
+                        .eq("follower_id", user_id) \
+                        .eq("following_id", target.data[0]["id"]) \
+                        .execute()
+                    is_following = bool(fol.data)
+        except Exception as e:
+            print(f"[WARN] follow check failed: {e}")
+
+        try:
+            # Ambil komentar - join manual biar aman
+            cmt = db.table("paste_comments") \
+                .select("id, content, created_at, user_id") \
+                .eq("paste_id", paste["id"]) \
+                .order("created_at", desc=True) \
+                .limit(50) \
+                .execute()
+            raw_comments = cmt.data or []
+
+            # Ambil username untuk setiap komentar
+            for c in raw_comments:
+                try:
+                    u = db.table("pastely_users").select("username").eq("id", c["user_id"]).single().execute()
+                    c["pastely_users"] = {"username": u.data["username"]} if u.data else {"username": "Unknown"}
+                except:
+                    c["pastely_users"] = {"username": "Unknown"}
+            comments = raw_comments
+        except Exception as e:
+            print(f"[WARN] comments fetch failed: {e}")
+            comments = []
 
     return render_template("view.html", paste=paste, creator=creator, burned=burn,
                            is_liked=is_liked, is_following=is_following, comments=comments)
