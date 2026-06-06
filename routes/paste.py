@@ -246,23 +246,14 @@ def view_paste(slug):
             print(f"[WARN] follow check failed: {e}")
 
         try:
-            # Ambil komentar - join manual biar aman
+            # Ambil komentar dengan join langsung
             cmt = db.table("paste_comments") \
-                .select("id, content, created_at, user_id") \
+                .select("id, content, created_at, user_id, pastely_users(username)") \
                 .eq("paste_id", paste["id"]) \
                 .order("created_at", desc=True) \
                 .limit(50) \
                 .execute()
-            raw_comments = cmt.data or []
-
-            # Ambil username untuk setiap komentar
-            for c in raw_comments:
-                try:
-                    u = db.table("pastely_users").select("username").eq("id", c["user_id"]).single().execute()
-                    c["pastely_users"] = {"username": u.data["username"]} if u.data else {"username": "Unknown"}
-                except:
-                    c["pastely_users"] = {"username": "Unknown"}
-            comments = raw_comments
+            comments = cmt.data or []
         except Exception as e:
             print(f"[WARN] comments fetch failed: {e}")
             comments = []

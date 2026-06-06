@@ -180,20 +180,12 @@ def following_feed():
     pastes = []
     if following_ids:
         result = db.table("snippets") \
-            .select("slug, title, paste_type, language, created_at, view_count, like_count, user_id") \
+            .select("slug, title, paste_type, language, created_at, view_count, like_count, user_id, pastely_users(username)") \
             .eq("visibility", "public") \
             .in_("user_id", following_ids) \
             .order("created_at", desc=True) \
             .limit(30) \
             .execute()
-        raw = result.data or []
-
-        for p in raw:
-            try:
-                u = db.table("pastely_users").select("username").eq("id", p["user_id"]).single().execute()
-                p["pastely_users"] = {"username": u.data["username"]} if u.data else {"username": "Unknown"}
-            except:
-                p["pastely_users"] = {"username": "Unknown"}
-        pastes = raw
+        pastes = result.data or []
 
     return render_template("following.html", pastes=pastes, following_count=len(following_ids))
