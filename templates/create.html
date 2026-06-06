@@ -69,6 +69,24 @@
     font-weight: 600;
     letter-spacing: 0.05em;
   }
+  .cm-paste-btn {
+    font-size: 0.7rem;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    color: #f8f8f2;
+    background: #44475a;
+    border: none;
+    border-radius: 6px;
+    padding: 3px 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: background 0.15s;
+  }
+  .cm-paste-btn:active { background: #6272a4; }
+  /* Hanya tampil di mobile */
+  @media (min-width: 768px) { .cm-paste-btn { display: none; } }
 </style>
 {% endblock %}
 
@@ -187,6 +205,9 @@
                   <span class="cm-dot-green"></span>
                 </div>
                 <span class="cm-lang-label" id="cm-lang-label">plaintext</span>
+                <button type="button" class="cm-paste-btn" id="cm-paste-btn">
+                  <i class="fa-solid fa-clipboard"></i> Tempel
+                </button>
               </div>
               <textarea id="cm-textarea">{{ paste.content if edit else (fork.content if fork else '') }}</textarea>
             </div>
@@ -424,6 +445,23 @@ document.getElementById('paste-form').addEventListener('submit', function(e) {
   cmEditor.setValue({{ paste.content | tojson }});
   setEditorLang('{{ paste.language or "plaintext" }}');
 {% endif %}
+
+// ── Tombol Tempel (mobile) ──────────────────────────────────────────────────
+document.getElementById('cm-paste-btn').addEventListener('click', async () => {
+  try {
+    const text = await navigator.clipboard.readText();
+    if (cmEditor) {
+      cmEditor.replaceSelection(text);
+      cmEditor.focus();
+    }
+  } catch (err) {
+    // Fallback: buka prompt manual
+    const text = prompt('Tempel kode kamu di sini:');
+    if (text && cmEditor) {
+      cmEditor.replaceSelection(text);
+    }
+  }
+});
 
 // ── Visibility ──────────────────────────────────────────────────────────────
 const visibilityOptions = document.querySelectorAll('.visibility-option');
